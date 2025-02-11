@@ -7,9 +7,9 @@
  */
 class VSTiimeduModel extends VSModelBackend
 {
-    protected $_tableName      = TABLE_PREFIX . 'tiimedu';
-    protected $_primaryKey     = 'tiimedu_id';
-    protected $_fieldPrefix    = 'tiimedu_';
+    // protected $_tableName      = TABLE_PREFIX . 'tiimedu';
+    // protected $_primaryKey     = 'tiimedu_id';
+    // protected $_fieldPrefix    = 'tiimedu_';
     private static $__instance = null;
     public static function getInstance()
     {

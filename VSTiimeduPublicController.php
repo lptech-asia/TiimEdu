@@ -20,6 +20,34 @@ class VSTiimeduPublicController extends VSControllerPublic
     public function __construct()
     {
         parent::__construct();
-        $this->model = VSModel::getInstance()->load($this);
     }
+
+
+    public function student()
+    {
+        require 'StudentController.php';
+        $student = StudentController::getInstance();
+        $action = VSRequest::vs(2) ?? 'index';
+        if(method_exists($student, $action))
+        {
+            $student->$action();
+        } else {
+            $this->error404();
+        }
+    }
+
+
+    public function school()
+    {
+        require 'SchoolController.php';
+        $school = SchoolController::getInstance();
+        $action = VSRequest::vs(2) ?? 'index';
+        if(method_exists($school, $action))
+        {
+            $school->$action();
+        } else {
+            $this->error404();
+        }
+    }
+
 }

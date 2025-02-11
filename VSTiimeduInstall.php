@@ -35,9 +35,9 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
         ;
 
         // Table schema
-        $this->_installerData->setVersion("1.0")
-            ->addTable('tiimedu')->setPrimaryKey('id')->setInt(11)->unsigned()
-        ;
+        // $this->_installerData->setVersion("1.0")
+        //     ->addTable('tiimedu')->setPrimaryKey('id')->setInt(11)->unsigned()
+        // ;
         parent::_init();
     }
 
