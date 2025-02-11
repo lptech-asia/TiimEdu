@@ -41,7 +41,7 @@ class StudentController extends VSControllerPublic
     }
     
 
-    public function studentEdit()
+    public function edit()
     {
         $this->view->render('Tiimedu/Student/edit');
     }

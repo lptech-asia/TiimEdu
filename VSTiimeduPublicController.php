@@ -9,6 +9,7 @@ class VSTiimeduPublicController extends VSControllerPublic
 {
     
     private static $__instance = null;
+    public $user = false;
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -20,7 +21,21 @@ class VSTiimeduPublicController extends VSControllerPublic
     public function __construct()
     {
         parent::__construct();
+        $this->modelUser = VSModel::getInstance()->load('User');
+        $this->user = $this->modelUser->getLoggedIn();
+        $this->requiredLogin();
     }
+
+    public function requiredLogin()
+    {
+        if($this->user == false)  
+        {
+            $this->setErrors('Bạn phải đăng nhập để thực hiện chức năng yêu cầu');
+            VSRedirect::to('user/login');
+        }
+        return $this->user;
+    }
+
 
 
     public function student()
