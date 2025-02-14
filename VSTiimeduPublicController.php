@@ -40,7 +40,7 @@ class VSTiimeduPublicController extends VSControllerPublic
     public function student()
     {
         $this->requiredLogin();
-        require 'StudentController.php';
+        require 'Controller/StudentController.php';
         $student = StudentController::getInstance();
         $action = VSRequest::vs(2) ?? 'index';
         if(method_exists($student, $action))
@@ -55,7 +55,7 @@ class VSTiimeduPublicController extends VSControllerPublic
     public function school()
     {
         $this->requiredLogin();
-        require 'SchoolController.php';
+        require 'Controller/SchoolController.php';
         $school = SchoolController::getInstance();
         $action = VSRequest::vs(2) ?? 'index';
         if(method_exists($school, $action))
