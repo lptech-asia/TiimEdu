@@ -23,7 +23,6 @@ class VSTiimeduPublicController extends VSControllerPublic
         parent::__construct();
         $this->modelUser = VSModel::getInstance()->load('User');
         $this->user = $this->modelUser->getLoggedIn();
-        $this->requiredLogin();
     }
 
     public function requiredLogin()
@@ -40,6 +39,7 @@ class VSTiimeduPublicController extends VSControllerPublic
 
     public function student()
     {
+        $this->requiredLogin();
         require 'StudentController.php';
         $student = StudentController::getInstance();
         $action = VSRequest::vs(2) ?? 'index';
@@ -54,6 +54,7 @@ class VSTiimeduPublicController extends VSControllerPublic
 
     public function school()
     {
+        $this->requiredLogin();
         require 'SchoolController.php';
         $school = SchoolController::getInstance();
         $action = VSRequest::vs(2) ?? 'index';
@@ -63,6 +64,19 @@ class VSTiimeduPublicController extends VSControllerPublic
         } else {
             $this->error404();
         }
+    }
+
+
+    public function role()
+    {
+        $this->view->render('Tiimedu/select.role');
+    }
+
+    public function postRole()
+    {
+        $role = VSRequest::post('type');
+        VSSession::set('role', $role);
+        VSJson::response(['status' => 'success', 'message' => 'Chọn vai trò thành công']);
     }
 
 }
