@@ -7,6 +7,7 @@
  */
 class VSTiimeduStudentModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_student_information';
     protected $_primaryKey     = 'tiimedu_student_information_id';
     protected $_fieldPrefix    = 'tiimedu_student_information_';

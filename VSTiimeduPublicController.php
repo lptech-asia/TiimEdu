@@ -5,9 +5,9 @@
  * @author LPTech Terminal <tech@lptech.asia>
  * @since 11/02/2025 03:38:19
  */
+require_once "traitCommonModel.php";
 class VSTiimeduPublicController extends VSControllerPublic
 {
-    
     private static $__instance = null;
     public $user = false;
     public static function getInstance()

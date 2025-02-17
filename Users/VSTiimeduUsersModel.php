@@ -7,6 +7,7 @@
  */
 class VSTiimeduUsersModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_users';
     protected $_primaryKey     = 'tiimedu_users_id';
     protected $_fieldPrefix    = 'tiimedu_users_';
@@ -24,16 +25,5 @@ class VSTiimeduUsersModel extends VSModelBackend
     {
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
-    }
-
-    public function getByUserId($userId = null)
-    {
-        $count = $this->count("{$this->_fieldPrefix}user_id = '{$userId}'");
-        if($count > 0)
-        {
-            $data =  $this->first([],["{$this->_fieldPrefix}user_id" => $userId]);
-            return $this->parseEntity($data);
-        }
-        return false;
     }
 }

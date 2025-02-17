@@ -5,11 +5,10 @@
  * @author LPTech Terminal <tech@lptech.asia>
  * @since 11/02/2025 03:38:19
  */
+require_once "traitCommonModel.php";
 class VSTiimeduModel extends VSModelBackend
 {
-    // protected $_tableName      = TABLE_PREFIX . 'tiimedu';
-    // protected $_primaryKey     = 'tiimedu_id';
-    // protected $_fieldPrefix    = 'tiimedu_';
+    use CommonModel;
     private static $__instance = null;
     public static function getInstance()
     {
