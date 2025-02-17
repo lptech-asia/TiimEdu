@@ -21,10 +21,36 @@ class VSTiimeduPublicController extends VSControllerPublic
     public function __construct()
     {
         parent::__construct();
+        $this->modelTiimedu = VSModel::getInstance()->load('Tiimedu');
+        $this->modelTiimeduUser = VSModel::getInstance()->load($this->modelTiimedu, 'Users/');
+        $this->modelStudent = VSModel::getInstance()->load($this->modelTiimedu, 'Student/');
+        $this->modelSchool = VSModel::getInstance()->load($this->modelTiimedu, 'School/');
+
         $this->modelUser = VSModel::getInstance()->load('User');
         $this->user = $this->modelUser->getLoggedIn();
+        if($this->user)
+        {
+            $this->user->role = $this->modelTiimeduUser->getByUserId($this->user->getId());
+        }
     }
 
+    public function index()
+    {
+        $role = $this->user->role->getType();
+        $page = $this->user->role::TYPE[$role];
+        VSRedirect::to(BASE_URL. 'tiimedu/'. $page);
+    }
+
+    public function checkPermission()
+    {
+        $page = VSRequest::vs(1);
+        $role = $this->user->role->getType();
+        $allow =  $this->user->role::TYPE[$role];
+        if($page != $allow)
+        {
+           $this->error404();
+        }
+    }
     public function requiredLogin()
     {
         if($this->user == false)  
@@ -32,6 +58,7 @@ class VSTiimeduPublicController extends VSControllerPublic
             $this->setErrors('Bạn phải đăng nhập để thực hiện chức năng yêu cầu');
             VSRedirect::to('user/login');
         }
+        $this->checkPermission();
         return $this->user;
     }
 
