@@ -25,13 +25,15 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
         $this->_setClass($this);
         $this->_setVersion("1.0");
         $this->_setCMSVersion("10.0");
+        // add Dependency
+        $this->_setDependencies(['Admin', 'User']);
         parent::__construct();
     }
 
     public function init()
     {
         // Adding menu
-        $this->addMenu('TiimEdy', 'tiimedu')->setIcon('edu')
+        $this->addMenu('TiimEdu', 'tiimedu')->setIcon('graduation-cap')
         ;
 
         // Table schema
@@ -41,7 +43,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('type')->setInt(1)->notNull()->defaultValue(1)->addComment('1 :Student , 2: Schools')
                 ->addCreatedAt()->addUpdatedAt()
                 // add foreign key
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
             // table user information
             ->addTable('tiimedu_student_information')->setPrimaryKey('id')->setInt(11)->unsigned()
                 ->addColumn('user_id')->setInt(11)->unsigned()->notNull()->addComment('Id bảng users')
@@ -80,7 +82,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // updated by
                 ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
                 ->addCreatedAt()->addUpdatedAt()
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
 
             // table country
             ->addTable('tiimedu_countries')->setPrimaryKey('id')->setInt(11)->unsigned()
@@ -117,7 +119,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // school province
                 ->addColumn('country_id')->setInt(1)->unsigned()->addComment('ID Quốc gia')
                 // school district
-                ->addColumn('city')->setVarchar(255)->unsigned()->addComment('Thành phố')
+                ->addColumn('city')->setVarchar(255)->addComment('Thành phố')
                 // school image
                 ->addColumn('image_folder')->setVarchar(255)->addComment('Folder Ảnh trường')
                 // Found Year
@@ -141,11 +143,9 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // updated by
                 ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
                 ->addCreatedAt()->addUpdatedAt()
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key country
-                ->addForeignKey('country_id', 'tiimedu_countries', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
-                // add add Foreign Key city
-                ->addForeignKey('city_id', 'tiimedu_cities', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('country_id', 'id', 'tiimedu_countries')->fkDelete('CASCADE')->fkUpdate('CASCADE')
 
                 // table Living option
             ->addTable('tiimedu_living_options')->setPrimaryKey('id')->setInt(11)->unsigned()
@@ -156,7 +156,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // status
                 ->addColumn('status')->setInt(1)->notNull()->defaultValue(1)->addComment('Trạng thái')
                 // add add Foreign Key
-                ->addForeignKey('school_id', 'tiimedu_school_information', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('school_id','id', 'tiimedu_school_information')->fkDelete('CASCADE')->fkUpdate('CASCADE')
             // table Program
             ->addTable('tiimedu_programs')->setPrimaryKey('id')->setInt(11)->unsigned()
                 // school id
@@ -217,7 +217,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
                 ->addCreatedAt()->addUpdatedAt()
 
-                ->addForeignKey('school_id', 'tiimedu_school_information', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('school_id', 'id', 'tiimedu_school_information')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 
 
             // add table scholarship
@@ -230,7 +230,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('description')->setVarchar(500)->addComment('Mô tả')
                 ->addCreatedAt()->addUpdatedAt()
                 // add foreign key
-                ->addForeignKey('program_id', 'tiimedu_programs', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('program_id', 'id', 'tiimedu_programs')->fkDelete('CASCADE')->fkUpdate('CASCADE')
 
             // Document of type
             ->addTable('tiimedu_document_types')->setPrimaryKey('id')->setInt(11)->unsigned()
@@ -243,7 +243,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
             // Documents
             ->addTable('tiimedu_documents')->setPrimaryKey('id')->setInt(11)->unsigned()
                 // type
-                ->addColumn('type_id')->setInt(1)->notNull()->defaultValue(1)->addComment('Xem ở bảng type')
+                ->addColumn('type_id')->setInt(1)->unsigned()->addComment('Xem ở bảng type')
                 // user id
                 ->addColumn('user_id')->setInt(11)->unsigned()->notNull()->addComment('Id bảng users')
                 // name
@@ -254,9 +254,9 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('file')->setVarchar(255)->notNull()->addComment('File đính kèm')
                 ->addStatus()->addCreatedAt()->addUpdatedAt()
                 // add add Foreign Key
-                ->addForeignKey('type_id', 'tiimedu_document_types', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('type_id', 'id', 'tiimedu_document_types')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
             // table event checkin
             ->addTable('tiimedu_event_checkin')->setPrimaryKey('id')->setInt(11)->unsigned()
                 // school id
@@ -269,9 +269,9 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('viewed_by')->setInt(11)->unsigned()->addComment('Id người xem là id user ở loại trường học')
                 ->addCreatedAt()->addUpdatedAt()
                 // add add Foreign Key school_id
-                ->addForeignKey('school_id', 'tiimedu_school_information', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('school_id', 'id', 'tiimedu_school_information')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key user_id
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
             // add table viewed university
             ->addTable('tiimedu_school_viewed')->setPrimaryKey('id')->setInt(11)->unsigned()
                 // school id
@@ -282,9 +282,9 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('counter')->setInt(11)->unsigned()->notNull()->defaultValue(1)->addComment('Số lần xem')
                 ->addCreatedAt()->addUpdatedAt()
                 // add add Foreign Key school_id
-                ->addForeignKey('school_id', 'tiimedu_school_information', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('school_id', 'id', 'tiimedu_school_information')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key user_id
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
             // add table application
             ->addTable('tiimedu_applications')->setPrimaryKey('id')->setInt(11)->unsigned()
                 // program id
@@ -309,11 +309,11 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('viewed_by')->setInt(11)->unsigned()->addComment('Id người xem là id user ở loại trường học')
                 ->addCreatedAt()->addUpdatedAt()
                 // add add Foreign Key program_id
-                ->addForeignKey('program_id', 'tiimedu_programs', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('program_id', 'id', 'tiimedu_programs')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key school_id
-                ->addForeignKey('school_id', 'tiimedu_school_information', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('school_id', 'id', 'tiimedu_school_information')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key user_id
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 
             // add table conversation
             ->addTable('tiimedu_conversations')->setPrimaryKey('id')->setInt(11)->unsigned()
@@ -333,9 +333,9 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('view')->setInt(1)->notNull()->defaultValue(0)->addComment('Trạng thái tin nhắn 0: Chưa xem / 1: Đã zem')
                 ->addCreatedAt()->addUpdatedAt()
                 // add add Foreign Key school_id
-                ->addForeignKey('school_id', 'tiimedu_school_information', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('school_id', 'id', 'tiimedu_school_information')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key user_id
-                ->addForeignKey('user_id', 'users', 'id')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
         ;
         parent::_init();
     }
