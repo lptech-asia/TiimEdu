@@ -11,4 +11,58 @@ trait CommonModel
         }
         return false;
     }
+
+    public function processFileUpload($inputFiles , $folderId, $folderName = 'files')
+	{
+        $this->modelTypes       = VSFileType::getInstance();
+        $this->modelFile        = VSFile::getInstance();
+
+        if (is_array($inputFiles) && !empty($inputFiles)) 
+        {
+            if ($inputFiles['error'] == UPLOAD_ERR_OK) 
+            {
+                $fileNameSafe = VSFile::filterFileName($inputFiles['name']);
+                $fileExt      = VSFile::getExtension($fileNameSafe);
+                $dataFiles    = array(
+                    'name'          => VSFile::getName($fileNameSafe),
+                    'extension'     => $fileExt,
+                    'types_id'      => $this->modelTypes->getIdByExt($fileExt),
+                    'size'          => intval($inputFiles['size']),
+                    'real_folder'   => date('Y-m-d'),
+                    'categories_id' => $folderId,
+                );
+				$filesDir = VS_UPLOAD_PATH . $folderName  .DS. str_replace('-', DS, $dataFiles['real_folder']) . DS;
+                // If file type not exists
+                if (!$dataFiles['types_id']) 
+                {
+                    $this->setErrors(sprintf($this->lang->t(VSRequest::vs(0) . '_type_not_exist', 'Loại file %s không tồn tại'), $fileExt));
+                }
+                
+                // if file folders not exists then create it
+                if (!is_dir($filesDir) || !file_exists($filesDir)) 
+                {
+                    mkdir($filesDir, 0777, true); // create files folders
+                }
+                
+                $filesPath = $filesDir . $dataFiles['name'] . '.' . $dataFiles['extension'];
+				if (move_uploaded_file($inputFiles['tmp_name'], $filesPath)) 
+                {
+                    $new_name = md5($dataFiles['name'].'-'.time());
+                    $new_path = $filesDir . $new_name . '.' . $dataFiles['extension'];
+                    if (rename($filesPath, $new_path)) 
+                    {
+                        $dataFiles['name'] = $new_name;
+                        $id = $this->modelFile->add($dataFiles, true);
+                        if (!$id) {
+                            @unlink($new_path);
+                            VSDebug::logError(sprintf('Lỗi thêm dữ liệu file [%s] vào database.'), $inputFiles['name']);
+                        }
+                        return VS_UPLOAD_URL . $folderName .DS. str_replace('-', DS, $dataFiles['real_folder']) .DS. $new_name  . '.' . $dataFiles['extension'];
+                    }
+				}  else  {
+					VSDebug::logError(sprintf('Lỗi di chuyển file [%s] từ thư mục tạm đến thư mục upload.'), $inputFiles['name']);
+				}
+            }
+        }
+	}
 }

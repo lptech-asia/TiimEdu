@@ -31,6 +31,7 @@ class VSTiimeduPublicController extends VSControllerPublic
         if($this->user)
         {
             $this->user->role = $this->modelTiimeduUser->getByUserId($this->user->getId());
+            $this->user->student = $this->modelStudent->getByUserId($this->user->getId());
         }
     }
 
@@ -62,14 +63,25 @@ class VSTiimeduPublicController extends VSControllerPublic
         return $this->user;
     }
 
-
-
-    public function student()
+    public function postStudent()
     {
+        $this->student();
+    }
+    public function student()
+    {   
         $this->requiredLogin();
         require 'Controller/StudentController.php';
         $student = StudentController::getInstance();
+        $student->user = $this->user;
+        $student->model = $this->modelTiimedu;
+        $student->modelTiimeduUser = $this->modelTiimeduUser;
+        $student->modelUser = $this->modelUser;
+        $student->modelStudent = $this->modelStudent;
         $action = VSRequest::vs(2) ?? 'index';
+        if(VSRequest::isPOST())
+        {
+            $action = 'post'. ucfirst($action);
+        }
         if(method_exists($student, $action))
         {
             $student->$action();
@@ -85,12 +97,20 @@ class VSTiimeduPublicController extends VSControllerPublic
         require 'Controller/SchoolController.php';
         $school = SchoolController::getInstance();
         $action = VSRequest::vs(2) ?? 'index';
+        if(VSRequest::isPOST())
+        {
+            $action = 'post'. ucfirst($action);
+        }
         if(method_exists($school, $action))
         {
             $school->$action();
         } else {
             $this->error404();
         }
+    }
+    public function postSchool()
+    {
+        $this->school();
     }
 
 
