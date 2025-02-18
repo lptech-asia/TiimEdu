@@ -18,5 +18,15 @@ class VSTiimeduDocumentsTypeEntity extends VSEntity
         return self::$__instance;
     }
     
-    public function __construct() {}
+    public function __construct() {
+        parent::__construct();
+    }
+
+
+    public function getDocuments()
+    {
+        $user = $this->modelDocument->getLoggined();
+        $documents = $this->modelDocument->where('type_id', $this->getId())->where('user_id', $user->getId())->getAll();
+        return $documents ?? [];
+    }
 }

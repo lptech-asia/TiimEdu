@@ -7,6 +7,7 @@
  */
 class VSTiimeduDocumentsTypeModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_document_types';
     protected $_primaryKey     = 'tiimedu_document_types_id';
     protected $_fieldPrefix    = 'tiimedu_document_types_';

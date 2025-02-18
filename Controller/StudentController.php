@@ -24,6 +24,8 @@ class StudentController extends VSControllerPublic
         $this->model = VSModel::getInstance()->load('Tiimedu');
         $this->modelUser = VSModel::getInstance()->load($this->model, 'Users/');
         $this->modelGemini = VSModel::getInstance()->load($this->model, 'Gemini/');
+        $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
+        $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
     }
 
     public function index()
@@ -47,15 +49,28 @@ class StudentController extends VSControllerPublic
     public function edit()
     {
         $vars = [
-            'student' => $this->user->student
+            'student' => $this->user->student,
+            'documentTypes' => $this->modelDocumentType->where('status',1)->getAll()
         ];
-
         $this->view->render('Tiimedu/Student/edit', $vars);
     }
 
-    public function postEdit()
+    public function postDeleteDocument()
     {
-        $data = $this->request->post();
+        $itemId = $this->request->post('id');
+        $result = [
+            'status' => false,
+            'message' => $this->lang->t('tiimedu_student_delete_docs_error', 'Lỗi. Không thể xóa tài liệu.')
+        ];
+        try {
+            $this->modelDocument->deleteItem($itemId);
+            $result['message'] = "Xóa tài liệu thành công.";
+            $result['status'] = true;
+        } catch (VSException $e)  {
+            $result['message'] = $e->message();
+            $result['status'] = false;
+        }
+        VSJson::response($result);
     }
 
     public function postUpdateUser()
@@ -63,7 +78,7 @@ class StudentController extends VSControllerPublic
         $file = $this->request->files('avatar');
         $result = [
             'status' => true,
-            'message' => $this->lang->t('user_update_error', 'Cập nhật thông tin tài khoản không thành công.')
+            'message' => $this->lang->t('user_update_error', 'Cập nhật thông tin tài khoản thành công.')
         ];
         if($file)
         {
@@ -91,7 +106,7 @@ class StudentController extends VSControllerPublic
         $file = $this->request->files($type);
         $result = [
             'status' => true,
-            'message' => $this->lang->t('user_update_error', 'Cập nhật thông tin tài khoản không thành công.')
+            'message' => $this->lang->t('user_update_error', 'Cập nhật thông tin tài khoản thành công.')
         ];
         if($file)
         {
@@ -141,11 +156,41 @@ class StudentController extends VSControllerPublic
     }
 
 
-    public function postUpdateFieldProfile()
+    public function postUpdateDocument()
     {
-        $data = $this->request->post();
-        ddd($data);
+        $file = $this->request->files('file');
+        $result = [
+            'status' => false,
+            'message' => $this->lang->t('tiimedu_student_upload_docs_error', 'Lỗi. Không thể Cập nhật tài liệu.')
+        ];
+        if($file)
+        {
+            $postData['file']     = $this->model->processFileUpload($file, VSSetting::s('user_avatar_folder_id', '242'));
+            if(!$postData['file'])
+            {
+                $result['message'] = $this->lang->t('tiimedu_student_upload_docs_error', 'Lỗi. Không thể Cập nhật tài liệu.');
+                VSJson::response($result);
+                die;
+            }
+            $postData['type_id'] = $this->request->post('type_id');
+            // user_id
+            $postData['user_id'] = $this->user->getId();
+            // name
+            $postData['name']  = VSFile::filterFileName($file['name']);
+            try {
+                $this->modelDocument->add($postData);
+                $result['message'] = "Cập nhật tài liệu thành công.";
+                $result['status'] = true;
+            } catch (VSException $e)  {
+                $result['message'] = $e->message();
+                $result['status'] = false;
+            }
+        }
+        
+        VSJson::response($result);
     }
+
+    
 
     public function suggestion()
     {

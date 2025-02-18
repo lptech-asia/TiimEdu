@@ -7,6 +7,7 @@
  */
 class VSTiimeduDocumentsModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_documents';
     protected $_primaryKey     = 'tiimedu_documents_id';
     protected $_fieldPrefix    = 'tiimedu_documents_';
@@ -23,5 +24,10 @@ class VSTiimeduDocumentsModel extends VSModelBackend
     {
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
+    }
+
+    public function deleteItem($id)
+    {
+        $this->massDelete([$this->_primaryKey => $id, $this->_fieldPrefix. 'user_id' => $this->getLoggined()->getId()]);
     }
 }

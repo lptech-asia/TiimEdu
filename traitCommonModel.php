@@ -1,6 +1,14 @@
 <?php
 trait CommonModel 
 {
+    public $where = [];
+
+    public function addModel($name, $model)
+    {
+        $this->model = $model;
+        $this->_entity->$name = $model;
+        return $this;
+    }
     public function getByUserId($userId = null)
     {
         $count = $this->count("{$this->_fieldPrefix}user_id = '{$userId}'");
@@ -11,7 +19,12 @@ trait CommonModel
         }
         return false;
     }
-
+    public function getLoggined()
+    {
+        $modelUser = VSModel::getInstance()->load('User');
+        $user = $modelUser->getLoggedIn();
+        return $user;
+    }
     public function processFileUpload($inputFiles , $folderId, $folderName = 'files')
 	{
         $this->modelTypes       = VSFileType::getInstance();
@@ -35,7 +48,9 @@ trait CommonModel
                 // If file type not exists
                 if (!$dataFiles['types_id']) 
                 {
-                    $this->setErrors(sprintf($this->lang->t(VSRequest::vs(0) . '_type_not_exist', 'Loại file %s không tồn tại'), $fileExt));
+                    $msg = sprintf('Loại file %s không tồn tại', $fileExt);
+                    VSDebug::logError($msg);
+                    return false;
                 }
                 
                 // if file folders not exists then create it
@@ -65,4 +80,17 @@ trait CommonModel
             }
         }
 	}
+
+
+    public function where($key, $value)
+    {
+        $this->where[$this->getFieldPrefix() . $key] = $value;
+        return $this;
+    }
+
+    public function getAll()
+    {
+        $data = $this->get([], $this->where);
+        return $this->parseEntities($data);
+    }
 }
