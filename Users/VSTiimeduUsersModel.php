@@ -25,5 +25,14 @@ class VSTiimeduUsersModel extends VSModelBackend
     {
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
+        $this->modelUser = VSModel::getInstance()->load('User');
+    }
+
+    public function getUser($type = 1)
+    {
+        $sql = "SELECT ms_user.* from {$this->_tableName} u JOIN {$this->modelUser->getTableName()} ms_user ON u.{$this->_fieldPrefix}user_id = ms_user.{$this->modelUser->getPrimaryKey()} WHERE {$this->_fieldPrefix}type = {$type} group BY {$this->modelUser->getPrimaryKey()}";
+        $data = $this->getPagingByCustomSQL($sql,15,true);
+        $students = $this->modelUser->parseEntities($data);
+        return $students;
     }
 }
