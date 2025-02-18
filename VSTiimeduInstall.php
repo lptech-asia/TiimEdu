@@ -79,6 +79,8 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('passport_issue_at')->setDate()->addComment('Ngày cấp hộ chiếu')
                 // Nationality 
                 ->addColumn('passport_nationality')->setVarchar(255)->addComment('Quốc tịch')
+                // passport id card
+                ->addColumn('passport_id_card')->setVarchar(255)->addComment('Số CMND/CCCD trên hộ chiếu')
                 // updated by
                 ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
                 ->addCreatedAt()->addUpdatedAt()

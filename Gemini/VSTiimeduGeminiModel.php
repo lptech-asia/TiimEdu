@@ -106,4 +106,47 @@ class VSTiimeduGeminiModel extends VSModelBackend
         curl_close($ch);
         return $items->data ?? [];
     }
+
+    public function readPassport($filePath = null)
+    {
+        if(empty($filePath)) return [];
+        $items = [];
+        $data = array(
+            'contents' => array(
+                array(
+                    'role' => 'user',
+                    'parts' => array(
+                        array('inline_data' => array('mime_type' => 'image/png', 'data' => base64_encode(file_get_contents($filePath)))),
+                        array('text' => 'Extract data from this image as full_name, nantionality, id card number, date of issue, date of expiry, passport no . Output as json text only with properties full_name, passport_name, dob, passport_issue_at, passport_expired_at, passport_number if empty passport number return js with status false. result json format is status = true if validated or false, and data with all request output, if empty passport number data is empty array.')
+                    )
+                )
+            )
+        );
+        
+        $data_string = json_encode($data);
+        $ch = curl_init($this->geminiUrl);
+        
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json'
+        ));
+        
+        $result = curl_exec($ch);
+        
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        } else {
+            $data = json_decode($result);
+            if(!isset($data->candidates)) return $items;
+            $data = $data->candidates[0]->content->parts[0]->text;
+            $data = str_replace('```json', '', $data);
+            $data = str_replace('```', '', $data);
+            $items = json_decode($data);
+        }
+        
+        curl_close($ch);
+        return $items->data ?? [];
+    }
 }

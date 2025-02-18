@@ -86,7 +86,8 @@ class StudentController extends VSControllerPublic
     public function postUpdateIdentify()
     {
         $type = $this->request->post('name');
-        $ocr = $this->request->post('ocr') ?? false;
+        $read_id = $this->request->post('read_id') ?? false;
+        $read_pp = $this->request->post('read_pp') ?? false;
         $file = $this->request->files($type);
         $result = [
             'status' => true,
@@ -94,17 +95,17 @@ class StudentController extends VSControllerPublic
         ];
         if($file)
         {
-            $postData[$type.'_image']     = $this->model->processFileUpload($file, VSSetting::s('user_avatar_folder_id', '242'));
+            $postData[$type]     = $this->model->processFileUpload($file, VSSetting::s('user_avatar_folder_id', '242'));
             $result['message']      = $this->lang->t('user_update_avatar_error', 'Cập nhật ảnh đại diện thành công.');
         } else {
             $postData = $this->request->post();
         }
         
         try {
-            if($ocr)
+            if($read_id)
             {
                 // ocr by gemini
-                $identifyData = $this->modelGemini->readIdentifyCard($postData[$type.'_image']);
+                $identifyData = $this->modelGemini->readIdentifyCard($postData[$type]);
                 if($identifyData)
                 {
                     $postData['identify_name'] = $identifyData->full_name ?? '';
@@ -112,6 +113,21 @@ class StudentController extends VSControllerPublic
                     $postData['gender'] = ($identifyData->gender == 'Nữ' ? 2 : 1)  ?? 3;
                     $postData['identify_address'] = $identifyData->contact_address  ?? '';
                     $postData['identify_number'] = $identifyData->id_number  ?? '';
+                    $result['data'] = $postData;
+                }
+            }
+            if($read_pp)
+            {
+                // ocr by gemini
+                $passportData = $this->modelGemini->readPassport($postData[$type]);
+                if($passportData)
+                {
+                    $postData['passport_name'] = $passportData->full_name ?? '';
+                    $postData['passport_expired_at'] = VSDateTime::parseInputDate($passportData->date_of_expiry) ?? '';
+                    $postData['passport_issue_at'] = VSDateTime::parseInputDate($passportData->date_of_issue) ?? '';
+                    $postData['passport_nationality'] = $passportData->nationality  ?? '';
+                    $postData['passport_number'] = $passportData->passport_number  ?? '';
+                    $postData['passport_id_card'] = $passportData->id_card_number  ?? '';
                     $result['data'] = $postData;
                 }
             }
