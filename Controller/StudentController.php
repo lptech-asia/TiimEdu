@@ -26,6 +26,8 @@ class StudentController extends VSControllerPublic
         $this->modelGemini = VSModel::getInstance()->load($this->model, 'Gemini/');
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
+        $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
+        $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries');
     }
 
     public function index()
@@ -42,7 +44,11 @@ class StudentController extends VSControllerPublic
 
     public function account() 
     {
-        $this->view->render('Tiimedu/Student/account');
+        $vars = [
+            'student' => $this->user->student,
+            'documentTypes' => $this->modelDocumentType->where('status',1)->getAll()
+        ];
+        $this->view->render('Tiimedu/Student/account', $vars);
     }
     
 
@@ -204,12 +210,24 @@ class StudentController extends VSControllerPublic
 
     public function countries()
     {
-        $this->view->render('Tiimedu/Student/countries');
+        $vars = [
+            'countries' => $this->modelCountry->getPagination(),
+            'paging' => $this->modelCountry->getPagingElements()
+        ];
+        $this->view->render('Tiimedu/Student/countries', $vars);
     }
 
     public function country()
     {
-        $this->view->render('Tiimedu/Student/country');
+        try {
+            $country = $this->modelCountry->getItem($this->request->vs(3));
+            $this->view->render('Tiimedu/Student/country', [
+                'country' => $country
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->message());
+            $this->error404();
+        }
     }
     
     public function apply()

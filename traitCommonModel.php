@@ -2,7 +2,7 @@
 trait CommonModel 
 {
     public $where = [];
-
+    public $order = '';
     public function addModel($name, $model)
     {
         $this->model = $model;
@@ -88,9 +88,30 @@ trait CommonModel
         return $this;
     }
 
+    public function orderBy($key = '', $value = 'DESC')
+    {
+        if($key == '')
+        {
+            $key = $this->_primaryKey;
+        }
+        $this->order = $this->_fieldPrefix . $key . " " . $value;
+        return $this;
+    }
+
     public function getAll()
     {
         $data = $this->get([], $this->where);
+        return $this->parseEntities($data);
+    }
+
+    public function getPagination()
+    {
+        $elms = array(
+            'columns' => array(),
+            'where' => $this->where,
+            'order' => $this->order
+        );
+        $data = $this->getPaging($elms);
         return $this->parseEntities($data);
     }
 }
