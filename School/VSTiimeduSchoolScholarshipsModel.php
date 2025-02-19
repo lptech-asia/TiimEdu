@@ -7,6 +7,7 @@
  */
 class VSTiimeduSchoolScholarshipsModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_scholarships';
     protected $_primaryKey     = 'tiimedu_scholarships_id';
     protected $_fieldPrefix    = 'tiimedu_scholarships_';
@@ -23,5 +24,11 @@ class VSTiimeduSchoolScholarshipsModel extends VSModelBackend
     {
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
+    }
+
+    // deleteByProgramId
+    public function deleteByProgramId($programId)
+    {
+        $this->massDelete([$this->_fieldPrefix. 'program_id' => $programId]);
     }
 }

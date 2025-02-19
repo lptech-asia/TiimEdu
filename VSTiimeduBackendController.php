@@ -119,6 +119,8 @@ class VSTiimeduBackendController extends VSControllerBackend
     {
         ini_set('memory_limit', -1);
         ini_set('max_execution_time', '0');
+        // delete all living option
+        $this->modelLiving->reset();
         try {
             $file = $this->request->files('import_file');
             $excel =  VSFile::loadExcel($file['tmp_name']);
@@ -176,8 +178,6 @@ class VSTiimeduBackendController extends VSControllerBackend
                     $data['updated_by']    = intval($this->admin->getId());
                     $this->modelSchool->edit($university->getId(), $data);
                     $uniId = $university->getId();
-                    // delete all living option
-                    $this->modelLiving->deleteBySchoolId($uniId);
                 } else {
                     $data['status'] = 1;
                     $data['updated_by']    = intval($this->admin->getId());
@@ -207,12 +207,15 @@ class VSTiimeduBackendController extends VSControllerBackend
     {
         ini_set('memory_limit', -1);
         ini_set('max_execution_time', '0');
+        // delete all scholarships option
+        $this->modelScholarships->reset();
         try {
             $file = $this->request->files('import_file');
             $excel =  VSFile::loadExcel($file['tmp_name']);
             $sheet = $excel->getSheet(0);
             $countRows = $sheet->getHighestDataRow();
             $errors = [];
+            
             for ($i = 2; $i <= $countRows; ++$i) {
                 $sku = $sheet->getCell('A' . $i)->getValue();
                 if (!$sku) {
@@ -255,24 +258,22 @@ class VSTiimeduBackendController extends VSControllerBackend
                     'updated_by'                                => intval($this->admin->getId())    
                 ];
                 $scholarships = [
-                    $sheet->getCell('AC' . $i)->getValue(),
-                    $sheet->getCell('AD' . $i)->getValue(),
-                    $sheet->getCell('AE' . $i)->getValue(),
-                    $sheet->getCell('AF' . $i)->getValue(),
-                    $sheet->getCell('AG' . $i)->getValue(),
-                    $sheet->getCell('AH' . $i)->getValue(),
-                    $sheet->getCell('AI' . $i)->getValue(),
-                    $sheet->getCell('AJ' . $i)->getValue(),
-                    $sheet->getCell('AK' . $i)->getValue(),
-                    $sheet->getCell('AL' . $i)->getValue()
+                    $sheet->getCell('AC' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AC' . $i)->getValue()),
+                    $sheet->getCell('AD' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AD' . $i)->getValue()),
+                    $sheet->getCell('AE' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AE' . $i)->getValue()),
+                    $sheet->getCell('AF' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AF' . $i)->getValue()),
+                    $sheet->getCell('AG' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AG' . $i)->getValue()),
+                    $sheet->getCell('AH' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AH' . $i)->getValue()),
+                    $sheet->getCell('AI' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AI' . $i)->getValue()),
+                    $sheet->getCell('AJ' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AJ' . $i)->getValue()),
+                    $sheet->getCell('AK' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AK' . $i)->getValue()),
+                    $sheet->getCell('AL' . 1)->getValue()       => VSString::doQuote($sheet->getCell('AL' . $i)->getValue())
                 ];
-                $program = $this->modelProgram->isExist('school_id', $data['school_id']);
+                $program = $this->modelProgram->isExist('program_id', $data['program_id']);
                 if ($program) 
                 {
                     $programId = $program->getId();
                     $this->modelProgram->edit($programId, $data);
-                    // delete all scholarships option
-                    $this->modelScholarships->deleteByProgramId($programId);
                 } else {
                     $data['status'] = 1;
                     if(!empty($data))
@@ -280,13 +281,14 @@ class VSTiimeduBackendController extends VSControllerBackend
                         $programId = $this->modelProgram->add($data);
                     }
                 }
-                // add Living option
-                foreach($scholarships as $sholarship) 
+                // add scholarship option
+                foreach($scholarships as $name => $sholarship) 
                 {
                     if (!empty($sholarship)) {
                         $this->modelScholarships->add([
-                            'program_id' => $programId,
-                            'description'      => $sholarship
+                            'program_id'    => $programId,
+                            'description'   => $sholarship,
+                            'name'          => $name
                         ]);
                     }
                 }
@@ -301,7 +303,13 @@ class VSTiimeduBackendController extends VSControllerBackend
     // detail of university
     public function university()
     {
-        $this->view->render('Backend/Universities/detail');
+        $university = $this->modelSchool->getItem($this->request->vs(2));
+        $programs   =  $this->modelProgram->where('school_id',$university->getId())->getPagination();
+        $this->view->render('Backend/Universities/detail', [
+            'university' => $university,
+            'programs'   => $programs,
+            'paging'    => $this->modelProgram->getPagingElements()
+        ]);
     }
 
     // detail of documents

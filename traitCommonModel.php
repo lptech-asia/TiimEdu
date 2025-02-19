@@ -137,4 +137,11 @@ trait CommonModel
         $data = $this->getPaging($elms);
         return $this->parseEntities($data);
     }
+
+
+    // delete all
+    public function reset()
+    {
+        $this->truncate();
+    }
 }

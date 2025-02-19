@@ -152,7 +152,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // updated by
                 ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
                 ->addCreatedAt()->addUpdatedAt()
-                ->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
+                ->addStatus()->addForeignKey('user_id', 'id', 'users')->fkDelete('CASCADE')->fkUpdate('CASCADE')
                 // add add Foreign Key country
                 ->addForeignKey('country_id', 'id', 'tiimedu_countries')->fkDelete('CASCADE')->fkUpdate('CASCADE')
 

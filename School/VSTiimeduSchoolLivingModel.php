@@ -7,6 +7,7 @@
  */
 class VSTiimeduSchoolLivingModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_living_options';
     protected $_primaryKey     = 'tiimedu_living_options_id';
     protected $_fieldPrefix    = 'tiimedu_living_options_';
