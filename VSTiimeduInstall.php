@@ -34,6 +34,13 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
     {
         // Adding menu
         $this->addMenu('TiimEdu', 'tiimedu')->setIcon('graduation-cap')
+            ->addMenu('Students', 'tiimedu/students')->setIcon('fa-user')
+            ->addMenu('Schools', 'tiimedu/school')->setIcon('angle-double-right')
+            ->addMenu('University', 'tiimedu/universities')->setIcon('graduation-cap')
+            ->addMenu('Event GFF', 'tiimedu/events')->setIcon('bell-o')
+            ->addMenu('Countries', 'tiimedu/countries')->setIcon('location-arrow')
+            ->addMenu('Documents', 'tiimedu/documents')->setIcon('cubes')
+            ->addMenu('Applications', 'tiimedu/applications')->setIcon('child')
         ;
 
         // Table schema
@@ -99,7 +106,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
             
             // table school information
             ->addTable('tiimedu_school_information')->setPrimaryKey('id')->setInt(11)->unsigned()
-                ->addColumn('user_id')->setInt(11)->unsigned()->notNull()->addComment('Id bảng users')
+                ->addColumn('user_id')->setInt(11)->unsigned()->addComment('Id bảng users')
                 // school name
                 ->addColumn('name')->setVarchar(255)->addComment('Tên trường')
                 // school type
