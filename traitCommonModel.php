@@ -80,7 +80,30 @@ trait CommonModel
             }
         }
 	}
-
+    public function countByStatus($status = null, $year = null)
+    {
+        $sql_year = '';
+        if($year)
+        {
+            $sql_year = " YEAR({$this->_fieldPrefix}created_at) = {$year}";
+        }
+        $condition = $this->_fieldPrefix . 'status=' . intval($status);
+        if($status)  $condition . ' AND ' . $sql_year;
+        return $this->count($status ? $condition : $sql_year);
+    }
+    public function isExist($name = null, $value = null)
+    {
+        $name = $name ? $this->_fieldPrefix . $name :  $this->_primaryKey;
+        $count = $this->count("{$name} = {$this->doQuote($value)}");
+        if($count)
+        {
+            $data = $this->get([],["{$name}" => $value]);
+            $data = reset($data);
+            $item = $this->parseEntity($data);
+            return $item;
+        }
+        return false;
+    }
 
     public function where($key, $value)
     {

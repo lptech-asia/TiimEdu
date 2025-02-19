@@ -110,7 +110,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // school name
                 ->addColumn('name')->setVarchar(255)->addComment('Tên trường')
                 // school type
-                ->addColumn('type')->setInt(1)->addComment('Loại trường Public Or Private')
+                ->addColumn('type')->setVarchar(25)->addComment('Loại trường Public Or Private')
                 // school level
                 ->addColumn('sku')->setVarchar(100)->addComment('Mã trường')
                 // school phone
@@ -122,7 +122,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // school logo
                 ->addColumn('logo')->setVarchar(255)->addComment('Logo trường')
                 // school description
-                ->addColumn('description')->setVarchar(500)->addComment('Mô tả trường')
+                ->addColumn('description')->setVarchar(1000)->addComment('Mô tả trường')
                 // school address
                 ->addColumn('address')->setVarchar(255)->addComment('Địa chỉ trường')
                 // school province
@@ -144,11 +144,11 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 // Campus Residence
                 ->addColumn('campus_residence')->setVarchar(500)->addComment('Ký túc xá')
                 // Lastest QS Ranking
-                ->addColumn('lastest_qs_ranking')->setInt(1)->addComment('Xếp hạng QS gần nhất')
+                ->addColumn('lastest_qs_ranking')->setVarchar(25)->addComment('Xếp hạng QS gần nhất')
                 // Lastest Shanghai Ranking
-                ->addColumn('lastest_shanghai_ranking')->setInt(1)->addComment('Xếp hạng Shanghai gần nhất')
+                ->addColumn('lastest_shanghai_ranking')->setVarchar(25)->addComment('Xếp hạng Shanghai gần nhất')
                 // Lastest National Ranking
-                ->addColumn('lastest_national_ranking')->setInt(1)->addComment('Xếp hạng quốc gia gần nhất')
+                ->addColumn('lastest_national_ranking')->setVarchar(25)->addComment('Xếp hạng quốc gia gần nhất')
                 // updated by
                 ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
                 ->addCreatedAt()->addUpdatedAt()

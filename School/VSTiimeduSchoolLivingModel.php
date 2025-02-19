@@ -24,4 +24,9 @@ class VSTiimeduSchoolLivingModel extends VSModelBackend
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
     }
+
+    public function deleteBySchoolId($schoolId)
+    {
+        $this->massDelete([$this->_fieldPrefix. 'school_id' => $schoolId]);
+    }
 }
