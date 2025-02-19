@@ -254,16 +254,40 @@ class VSTiimeduBackendController extends VSControllerBackend
                     'international_students'                    => $sheet->getCell('AB' . $i)->getValue(),
                     'updated_by'                                => intval($this->admin->getId())    
                 ];
+                $scholarships = [
+                    $sheet->getCell('AC' . $i)->getValue(),
+                    $sheet->getCell('AD' . $i)->getValue(),
+                    $sheet->getCell('AE' . $i)->getValue(),
+                    $sheet->getCell('AF' . $i)->getValue(),
+                    $sheet->getCell('AG' . $i)->getValue(),
+                    $sheet->getCell('AH' . $i)->getValue(),
+                    $sheet->getCell('AI' . $i)->getValue(),
+                    $sheet->getCell('AJ' . $i)->getValue(),
+                    $sheet->getCell('AK' . $i)->getValue(),
+                    $sheet->getCell('AL' . $i)->getValue()
+                ];
                 $program = $this->modelProgram->isExist('school_id', $data['school_id']);
                 if ($program) 
                 {
                     $programId = $program->getId();
                     $this->modelProgram->edit($programId, $data);
+                    // delete all scholarships option
+                    $this->modelScholarships->deleteByProgramId($programId);
                 } else {
                     $data['status'] = 1;
                     if(!empty($data))
                     {
                         $programId = $this->modelProgram->add($data);
+                    }
+                }
+                // add Living option
+                foreach($scholarships as $sholarship) 
+                {
+                    if (!empty($sholarship)) {
+                        $this->modelScholarships->add([
+                            'program_id' => $programId,
+                            'description'      => $sholarship
+                        ]);
                     }
                 }
                 $this->setMessage('Import dữ liệu chương trình đào tạo thành công');
