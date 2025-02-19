@@ -25,9 +25,50 @@ class VSTiimeduBackendController extends VSControllerBackend
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
         $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries');
+        $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
+        $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
 
         $this->modelMasterUser = VSModel::getInstance()->load('User');
     }
+    private function __setStatus($model = null, $status = 0)
+    {
+        if(!$model) $this->error404();
+        try {
+            $itemId       = $this->request->get('item_id');
+            $result = array(
+                'status'  => true,
+                'message' => $this->lang->t('global_disable_success', "Chuyển sang trạng thái vô hiệu hóa thành công"),
+            );
+            $model->updateField($itemId, 'status', $status);
+
+            if ($status == 1) {
+                $result['message'] = $this->lang->t('global_enable_success', "Chuyển sang trạng thái kích hoạt thành công");
+            }
+        } catch (VSException $e) {
+            $result['status']  = false;
+            $result['message'] = $e->message();
+        }
+
+        VSJson::response($result);
+    }
+    
+    private function __deleteItem($model = null, $id = null)
+    {
+        if(!$id || !$model) $this->error404();
+        $delete = $model->delete($id);
+        if($delete)
+        {
+            $this->setMessage('Xoá thành công');
+        }
+        VSRedirect::to($this->request->get('back'));
+    }
+
+    protected function documentStatus()
+    {
+        $status = $this->request->vs(2) ?? 0;
+        $this->__setStatus($this->modelDocumentType, $status);
+    }
+
     public function index() 
     {
         $this->view->render('Backend/index');
@@ -70,6 +111,25 @@ class VSTiimeduBackendController extends VSControllerBackend
     public function university()
     {
         $this->view->render('Backend/university');
+    }
+
+    // detail of documents
+    public function documents()
+    {
+        $documentsTypes = $this->modelDocumentType->getAll();
+        $this->view->render('Backend/documents', [
+            'documentsTypes' => $documentsTypes
+        ]);
+    }
+
+    public function applications()
+    {
+        $this->view->render('Backend/applications');
+    }
+
+    public function events()
+    {
+        $this->view->render('Backend/events');
     }
     
 }

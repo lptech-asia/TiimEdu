@@ -6,7 +6,12 @@
 <div class="col-md-12">
     <div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">{{ LANG.t('hotels_user_title',"Danh sách thành viên") }}</strong></h3>
+            <h3 class="box-title">{{ LANG.t('tiimedu_user_school_title',"Danh sách thành viên trường") }}</strong></h3>
+            <div class="box-tools pull-right">
+                <p class="text-muted">
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#customer-create"><i class="fa fa-plus"></i> Tạo Thành Viên</button>
+                </p>
+            </div>
         </div>
         <div class="box-body">
             <div class="table-responsive">
@@ -17,6 +22,7 @@
                         <th>{{ LANG.t('user_email',"Email") }}</th>
                         <th>{{ LANG.t('user_phone',"Số điện thoại") }}</th>
                         <th>Địa chỉ</th>
+                        <th>Trường</th>
                         <th>Trạng thái</th>
                         <th>{{ LANG.t('user_register_date',"Ngày đăng ký") }}</th>
                         <th>Chi tiết</th>
@@ -25,14 +31,14 @@
                     <tr>
                         <td>{{ item.getId }}</td>
                         <td>
-                            {{ item.getName }}
-                            <span class="label label-{{ item.agency and item.agency.getStatus == 1 ? 'success' : item.agency.getStatus == 0 ? 'warning' }}">{{ item.agency ? 'B2B' }}</span>
+                            {{ item.getName ?? 'N/A' }}
                         </td>
                         <td>{{ item.getEmail }}</td>
                         <td>
-                            {{ item.getPhone }}
+                            {{ item.getPhone ?? 'N/A' }}
                         </td>
-                        <td>{{ item.getAddress }}</td>
+                        <td>{{ item.getAddress ?? 'N/A' }}</td>
+                        <td>N/A</td>
                         <td>
                             <span class="label label-{{ item.getStatus ? 'success' : 'danger' }}">{{ item.getStatus ? 'Hoạt động' : 'Chưa kích hoạt' }}</span>
                         </td>
@@ -49,6 +55,50 @@
             {% include 'partials/paging.tpl' %}
         </div><!-- .box-footer -->
     </div>
+</div>
+<div class="modal fade" id="customer-create">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">Tạo thành viên trường học</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" method="post" action="{{ MODULE_URL }}createUserSchool">
+                    <div class="form-group">
+                        <label>Họ và Tên</label>
+                        <input type="text" class="form-control" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" class="form-control" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" class="form-control" name="phone">
+                    </div>
+                    {# create select option to select university #}
+                    <div class="form-group">
+                        <label>University</label> <br>
+                        <select class="form-control select2" name="university">
+                            {# option default #}
+                            <option value="">Chọn trường quản lý</option>
+                            {% for university in universities %}
+                                <option value="{{ university.id }}">{{ university.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary pull-right">Tạo tài khoản</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 {% endblock %}
 {% block custom_js %}

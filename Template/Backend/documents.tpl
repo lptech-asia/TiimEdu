@@ -1,16 +1,16 @@
 {% extends 'layout.tpl' %}
 {% block custom_css %}
 {% endblock %}
-{% block header %}{% lang tiimedu_category_index_header = "Quản lý danh mục" %} {% endblock %}
+{% block header %} Quản lý Phân loại Tài liệu {% endblock %}
 {% block body %}
 <div class="col-md-12">
     <div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">{% lang tiimedu_category_list_title = "Danh sách danh mục" %}</h3>
+            <h3 class="box-title">Danh sách Loại Tài liệu</h3>
             <div class="box-tools pull-right">
                 <p class="text-muted">
                     <hasperm>
-                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#countries-create"><i class="fa fa-plus"></i> Tạo Quốc gia</button>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#document-create"><i class="fa fa-plus"></i> Tạo Loại Tài Liệu</button>
                     </hasperm>
                 </p>
             </div>
@@ -22,28 +22,32 @@
                         <thead>
                             <tr>
                                 <th style="width: 10px;">#</th>
-                                <th>Ảnh</th>
                                 <th>Tiêu đề</th>
+                                <th>Giới hạn</th>
                                 <th>Mô tả</th>
-                                <th>Ngày tạo </th>
-                                <th>Cập nhật </th>
+                                <th>Trạng thái</th>
+                                <th style="width: 200px;">Ngày tạo </th>
+                                <th style="width: 200px;">Cập nhật </th>
                                 <th style="width: 150px;">Sửa</th>
                                 <th style="width: 150px;">Xoá</th>
                             </tr>
                         </thead>
                         <tbody id="order-data">
-                        {% for country in countries %}
+                        {% for type  in documentsTypes %}
                             <tr>
-                                <td>{{ country.getId }}</td>
-                                <td>
-                                    <a href="{{ country.getImage }}" data-toggle="lightbox" data-gallery="file_images_imgs" data-title="{{ country.getName }}" title="{% lang file_view_image = 'Xem hình đầy đủ' %}">
-                                        <img style="width:100px" src="{{ country.getImage }}" alt="{{ country.getName }}" />
-                                    </a>
+                                <td>{{ type.getId }}</td>
+                                <td>{{ type.getName }}</td>
+                                <td>{{ type.getLimit ?? 1 }}</td>
+                                <td>{{ type.getDescription }}</td>
+                                <td id="td-{{ type.getId }}">
+                                    {% if type.getStatus %}
+                                    <a href="javascript:setStatus({{ type.getId }},'documentStatus/0')" title="{% lang noedit global_btn_active = 'Trạng thái đang bật, bấm vào đây để TẮT' %}"><i class="fa fa-2x fa-toggle-on"></i></a>
+                                    {% else %}
+                                    <a href="javascript:setStatus({{ type.getId }},'documentStatus/1')" title="{% lang noedit global_btn_disable = 'Trạng thái đang tắt, bấm vào đây để BẬT' %}"><i class="fa fa-2x fa-toggle-off"></i></a>
+                                    {% endif %}
                                 </td>
-                                <td>{{ country.getName }}</td>
-                                <td>{{ country.getDescription }}</td>
-                                <td>{{ country.getCreatedAt|date("d/m/Y - H:i A")}}</td>
-                                <td>{{ country.getUpdatedAt|date("d/m/Y - H:i A")}}</td>
+                                <td>{{ type.getCreatedAt|date("d/m/Y - H:i A")}}</td>
+                                <td>{{ type.getUpdatedAt|date("d/m/Y - H:i A")}}</td>
                                 <td>
                                     <button type="button" class="btn btn-warning" title="Chỉnh sửa danh mục: #{{ category.getTitle }}" data-toggle="lightbox" data-remote="{{ BASE_URL }}hotels/categoryModalGenerator/{{ category.getId }}" data-title="Chỉnh sửa danh mục #{{ category.getTitle }}" data-width="1000">
                                         <i class="fa fa-edit"></i>
@@ -64,30 +68,30 @@
     </div>
 </div>
 
-<div class="modal fade" id="countries-create">
+<div class="modal fade" id="document-create">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span></button>
-                <h4 class="modal-title">Thêm Quốc Gia Mới</h4>
+                <h4 class="modal-title">Tạo loại tài liệu</h4>
             </div>
             <div class="modal-body">
-                <form role="form" method="post" action="{{ MODULE_URL }}createCountries">
+                <form role="form" method="post" action="{{ MODULE_URL }}documentCreate">
                     <div class="form-group">
-                        <label>Tên Quốc Gia</label>
+                        <label>Tên Loại Tài Liệu</label>
                         <input type="text" class="form-control" name="name">
                     </div>
                     <div class="form-group">
-                        <label>Mã Quốc Gia</label>
-                        <input type="text" class="form-control" name="code">
+                        <label>Giới hạn tải lên</label>
+                        <input type="text" class="form-control" name="name">
                     </div>
                     <div class="form-group">
-                        <label>Nội dung</label>
-                        <textarea class="form-control" rows="5" name="description"></textarea>
+                        <label>Mô tả</label>
+                        <textarea rows="3" type="text" class="form-control" name="description"></textarea>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary pull-right">Tạo ngay</button>
+                        <button type="submit" class="btn btn-primary pull-right">Cập nhật thông tin</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
                     </div>
                 </form>

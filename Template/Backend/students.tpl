@@ -6,7 +6,7 @@
 <div class="col-md-12">
     <div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">{{ LANG.t('hotels_user_title',"Danh sách thành viên") }}</strong></h3>
+            <h3 class="box-title">{{ LANG.t('tiimedu_user_title',"Danh sách thành viên") }}</strong></h3>
         </div>
         <div class="box-body">
             <div class="table-responsive">

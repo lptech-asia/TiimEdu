@@ -247,8 +247,11 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
                 ->addColumn('name')->setVarchar(255)->notNull()->addComment('Tên loại')
                 // description
                 ->addColumn('description')->setVarchar(255)->addComment('Mô tả')
+                ->addColumn('limit')->setInt(1)->defaultValue(2)->addComment('Giới hạn số lượng file upload')
                 // status
                 ->addColumn('status')->setInt(1)->notNull()->defaultValue(1)->addComment('Trạng thái')
+                ->addColumn('updated_by')->setInt(11)->unsigned()->addComment('Id người cập nhật')
+                ->addCreatedAt()->addUpdatedAt()
             // Documents
             ->addTable('tiimedu_documents')->setPrimaryKey('id')->setInt(11)->unsigned()
                 // type
