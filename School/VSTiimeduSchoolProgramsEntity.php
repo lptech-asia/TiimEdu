@@ -19,4 +19,22 @@ class VSTiimeduSchoolProgramsEntity extends VSEntity
     }
     
     public function __construct() {}
+
+    public function getIntake($i)
+    {
+        $name = "getIntake{$i}";
+        return $this->$name();
+    }
+
+    public function getDeadline($i)
+    {
+        $name = "getDeadline{$i}";
+        return $this->$name();
+    }
+
+    public function getFeeYear($i)
+    {
+        $name = "getFeeYear{$i}";
+        return $this->$name();
+    }
 }

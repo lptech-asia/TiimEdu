@@ -144,4 +144,17 @@ trait CommonModel
     {
         $this->truncate();
     }
+
+    public function countItem()
+    {
+        $sqlWhere = '';
+        foreach ($this->where as $key => $value) {
+            $sqlWhere .= $key . ' = ' . $this->doQuote($value);
+            if($key !== array_key_last($this->where))
+            {
+                $sqlWhere .= ' AND ';
+            }
+        }
+        return $this->count($sqlWhere);
+    }
 }

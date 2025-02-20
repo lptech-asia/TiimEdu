@@ -19,4 +19,11 @@ class VSTiimeduSchoolCountriesEntity extends VSEntity
     }
     
     public function __construct() {}
+
+
+    public function countUniversity()
+    {
+        $count = $this->modelSchool->where('country_id',$this->getId())->countItem();
+        return $count;
+    }
 }

@@ -18,5 +18,13 @@ class VSTiimeduSchoolEntity extends VSEntity
         return self::$__instance;
     }
     
-    public function __construct() {}
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function countProgram()
+    {
+        $count = $this->modelProgram->where('school_id',$this->getId())->countItem();
+        return $count;
+    }
 }

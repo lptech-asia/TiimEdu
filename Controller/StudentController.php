@@ -27,7 +27,11 @@ class StudentController extends VSControllerPublic
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
         $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
-        $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries');
+        $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
+        $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
+        $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
+        $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
+        $this->modelSchool->addModel('modelProgram', $this->modelProgram);
     }
 
     public function index()
@@ -205,7 +209,15 @@ class StudentController extends VSControllerPublic
 
     public function school()
     {
-        $this->view->render('Tiimedu/Student/school');
+        $university = $this->modelSchool->getItem($this->request->vs(3));
+        $livingOption = $this->modelLiving->where('school_id', $university->getId())->getAll();
+        $programs = $this->modelProgram->where('school_id', $university->getId())->getPagination();
+        $this->view->render('Tiimedu/Student/school', [
+            'university' => $university,
+            'livingOption' => $livingOption,
+            'programs' => $programs,
+            'paging' => $this->modelProgram->getPagingElements()
+        ]);
     }
 
     public function countries()
@@ -217,12 +229,28 @@ class StudentController extends VSControllerPublic
         $this->view->render('Tiimedu/Student/countries', $vars);
     }
 
+    public function admission()
+    {
+        $program = $this->modelProgram->getItem($this->request->vs(3));
+        $university = $this->modelSchool->getItem($program->getSchoolId());
+        $schoolarships = $this->modelScholarships->where('program_id', $program->getId())->getAll();
+        $this->view->render('Tiimedu/Student/admission.detail', [
+            'program'   => $program,
+            'university' => $university,
+            'schoolarships' => $schoolarships
+        ]);
+    }
+
     public function country()
     {
         try {
             $country = $this->modelCountry->getItem($this->request->vs(3));
+            // get school
+            $schools = $this->modelSchool->where('country_id', $country->getId())->getPagination();
             $this->view->render('Tiimedu/Student/country', [
-                'country' => $country
+                'country' => $country,
+                'universities' => $schools,
+                'paging' => $this->modelSchool->getPagingElements()
             ]);
         } catch (VSException $e) {
             $this->setErrors($e->message());
