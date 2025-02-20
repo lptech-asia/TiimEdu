@@ -106,6 +106,11 @@ class VSTiimeduBackendController extends VSControllerBackend
         ]);
     }
 
+    public function deleteCountry()
+    {
+        $this->__deleteItem($this->modelCountry, $this->request->vs(2));
+    }
+
     // list of universities
     public function universities()
     {

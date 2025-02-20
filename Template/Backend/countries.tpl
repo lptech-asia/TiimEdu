@@ -9,9 +9,9 @@
             <h3 class="box-title">{% lang tiimedu_category_list_title = "Danh sách danh mục" %}</h3>
             <div class="box-tools pull-right">
                 <p class="text-muted">
-                    <hasperm>
+                    {# <hasperm>
                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#countries-create"><i class="fa fa-plus"></i> Tạo Quốc gia</button>
-                    </hasperm>
+                    </hasperm> #}
                 </p>
             </div>
         </div>
@@ -27,7 +27,7 @@
                                 <th>Mô tả</th>
                                 <th>Ngày tạo </th>
                                 <th>Cập nhật </th>
-                                <th style="width: 150px;">Sửa</th>
+                                {# <th style="width: 150px;">Sửa</th> #}
                                 <th style="width: 150px;">Xoá</th>
                             </tr>
                         </thead>
@@ -36,21 +36,17 @@
                             <tr>
                                 <td>{{ country.getId }}</td>
                                 <td>
+                                {% if country.getImage %}
                                     <a href="{{ country.getImage }}" data-toggle="lightbox" data-gallery="file_images_imgs" data-title="{{ country.getName }}" title="{% lang file_view_image = 'Xem hình đầy đủ' %}">
                                         <img style="width:100px" src="{{ country.getImage }}" alt="{{ country.getName }}" />
                                     </a>
+                                    {% else %}  N/A  {% endif %}
                                 </td>
                                 <td>{{ country.getName }}</td>
                                 <td>{{ country.getDescription }}</td>
                                 <td>{{ country.getCreatedAt|date("d/m/Y - H:i A")}}</td>
                                 <td>{{ country.getUpdatedAt|date("d/m/Y - H:i A")}}</td>
-                                <td>
-                                    <button type="button" class="btn btn-warning" title="Chỉnh sửa danh mục: #{{ category.getTitle }}" data-toggle="lightbox" data-remote="{{ BASE_URL }}hotels/categoryModalGenerator/{{ category.getId }}" data-title="Chỉnh sửa danh mục #{{ category.getTitle }}" data-width="1000">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                </td>
-                                {% hasperm REQUEST.vs(0)~'/deleteCategory' %}<td><hasperm><a title="{% lang noedit award_campaigns_btn_delete_hint = "Xoá ứng chiến dịch này" %}" data-objact="deleteCategory" data-objname="{{ category.getTitle }}" data-objid="{{ category.getId }}" data-toggle="modal" data-target="#modal-confirm" href="#"><i class="text-red fa-2x fa fa-close">&nbsp;</i></a></hasperm></td>{% endperm %}
-
+                                {% hasperm REQUEST.vs(0)~'/deleteCountry' %}<td><hasperm><a title="Xoá ứng Quốc gia này" data-objact="deleteCountry" data-objname="{{ country.getTitle }}" data-objid="{{ country.getId }}" data-toggle="modal" data-target="#modal-confirm" href="#"><i class="text-red fa-2x fa fa-close">&nbsp;</i></a></hasperm></td>{% endperm %}
                             </tr>
                             {% endfor %}
                         </tbody>
