@@ -49,11 +49,11 @@
                                 <td>{{ type.getCreatedAt|date("d/m/Y - H:i A")}}</td>
                                 <td>{{ type.getUpdatedAt|date("d/m/Y - H:i A")}}</td>
                                 <td>
-                                    <button type="button" class="btn btn-warning" title="Chỉnh sửa danh mục: #{{ category.getTitle }}" data-toggle="lightbox" data-remote="{{ BASE_URL }}hotels/categoryModalGenerator/{{ category.getId }}" data-title="Chỉnh sửa danh mục #{{ category.getTitle }}" data-width="1000">
+                                    <button type="button" class="btn btn-warning" title="Chỉnh sửa danh mục: #{{ type.getTitle }}" data-toggle="lightbox" data-remote="{{ MODULE_URL }}editDocumentType/{{ type.getId }}" data-title="Chỉnh sửa loại tài liệu #{{ type.getName }}" data-width="1000">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </td>
-                                {% hasperm REQUEST.vs(0)~'/deleteCategory' %}<td><hasperm><a title="{% lang noedit award_campaigns_btn_delete_hint = "Xoá ứng chiến dịch này" %}" data-objact="deleteCategory" data-objname="{{ category.getTitle }}" data-objid="{{ category.getId }}" data-toggle="modal" data-target="#modal-confirm" href="#"><i class="text-red fa-2x fa fa-close">&nbsp;</i></a></hasperm></td>{% endperm %}
+                                {% hasperm REQUEST.vs(0)~'/deleteDocumentType' %}<td><hasperm><a title="Xoá loại tài liệu này" data-objact="deleteDocumentType" data-objname="{{ type.getName }}" data-objid="{{ type.getId }}" data-toggle="modal" data-target="#modal-confirm" href="#"><i class="text-red fa-2x fa fa-close">&nbsp;</i></a></hasperm></td>{% endperm %}
 
                             </tr>
                             {% endfor %}
@@ -80,11 +80,11 @@
                 <form role="form" method="post" action="{{ MODULE_URL }}documentCreate">
                     <div class="form-group">
                         <label>Tên Loại Tài Liệu</label>
-                        <input type="text" class="form-control" name="name">
+                        <input type="text" class="form-control" name="name" required>
                     </div>
                     <div class="form-group">
                         <label>Giới hạn tải lên</label>
-                        <input type="text" class="form-control" name="name">
+                        <input type="number" class="form-control" name="limit" value="1">
                     </div>
                     <div class="form-group">
                         <label>Mô tả</label>

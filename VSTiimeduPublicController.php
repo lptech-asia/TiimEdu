@@ -37,6 +37,7 @@ class VSTiimeduPublicController extends VSControllerPublic
 
     public function index()
     {
+        $this->requiredLogin();
         $role = $this->user->role->getType();
         $page = $this->user->role::TYPE[$role];
         VSRedirect::to(BASE_URL. 'tiimedu/'. $page);

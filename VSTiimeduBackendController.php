@@ -316,8 +316,53 @@ class VSTiimeduBackendController extends VSControllerBackend
     public function documents()
     {
         $documentsTypes = $this->modelDocumentType->getAll();
-        $this->view->render('Backend/documents', [
+        $this->view->render('Backend/Documents/index', [
             'documentsTypes' => $documentsTypes
+        ]);
+    }
+
+    // post create docs
+    public function postDocumentCreate()
+    {
+        $data = $this->request->post();
+        $edit = $this->request->post('id') ?? false;
+        $data = $this->validate->run($data, [
+            'name' => 'required',
+            'limit' => 'required'
+        ]);
+        if ($data === false) {
+            $errors = $this->validate->getErrors($this);
+        }
+
+        if (empty($errors)) 
+        {
+            if($edit)
+            {
+                $this->modelDocumentType->edit($edit, $data);
+                $this->setMessage('Thêm mới loại tài liệu thành công');
+            } else {
+                $data['status'] = 1;
+                $this->modelDocumentType->add($data);
+                $this->setMessage('Thêm mới loại tài liệu thành công');
+            }
+            
+        } else {
+            $this->setErrors($errors);
+        }
+
+        VSRedirect::to('tiimedu/documents');
+    }
+
+    public function deleteDocumentType()
+    {
+        $this->__deleteItem($this->modelDocumentType, $this->request->vs(2));
+    }
+
+    public function editDocumentType()
+    {
+        $documentsType = $this->modelDocumentType->getItem($this->request->vs(2));
+        $this->view->render('Backend/Documents/edit', [
+            'documentsType' => $documentsType
         ]);
     }
 
