@@ -35,7 +35,7 @@ class VSTiimeduInstall extends VSInstaller implements VSInstallerInterface
         // Adding menu
         $this->addMenu('TiimEdu', 'tiimedu')->setIcon('graduation-cap')
             ->addMenu('Students', 'tiimedu/students')->setIcon('fa-user')
-            ->addMenu('Schools', 'tiimedu/school')->setIcon('angle-double-right')
+            ->addMenu('Schools', 'tiimedu/schools')->setIcon('angle-double-right')
             ->addMenu('University', 'tiimedu/universities')->setIcon('graduation-cap')
             ->addMenu('Event GFF', 'tiimedu/events')->setIcon('bell-o')
             ->addMenu('Countries', 'tiimedu/countries')->setIcon('location-arrow')

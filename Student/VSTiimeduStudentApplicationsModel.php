@@ -1,4 +1,7 @@
 <?php
+
+use phpseclib3\Crypt\EC\Formats\Keys\Common;
+
 /**
  * Class VSTiimeduStudentApplicationsModel
  * @todo This's the module create automatic by terminal
