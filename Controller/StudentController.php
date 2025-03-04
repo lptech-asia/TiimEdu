@@ -187,6 +187,8 @@ class StudentController extends VSControllerPublic
             $postData['user_id'] = $this->user->getId();
             // name
             $postData['name']  = VSFile::filterFileName($file['name']);
+            $postData['file_extension'] = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $postData['file_size'] = $file['size'];
             try {
                 $this->modelDocument->add($postData);
                 $result['message'] = "Cập nhật tài liệu thành công.";

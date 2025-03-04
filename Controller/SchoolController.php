@@ -28,8 +28,9 @@ class SchoolController extends VSControllerPublic
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
         $this->modelSchool->addModel('modelProgram', $this->modelProgram);
         $this->currentUser = $this->modelSchool->getLoggined();
-        $this->school = $this->modelSchool->where('user_id', $this->currentUser->getId())->getOne();
-        if(!$this->school) VSRedirect::to('school/pending');
+
+        $this->university = $this->modelSchool->where('user_id', $this->currentUser->getId())->getOne();
+        if(!$this->university) VSRedirect::to('school/pending');
 
     }
 
@@ -40,8 +41,14 @@ class SchoolController extends VSControllerPublic
 
     public function index()
     {
+        $university = $this->university;
+        $livingOption = $this->modelLiving->where('school_id', $university->getId())->getAll();
+        $programs = $this->modelProgram->where('school_id', $university->getId())->getPagination();
         $this->view->render('Tiimedu/School/index',[
-            'school' => $this->school
+            'university' => $university,
+            'livingOption' => $livingOption,
+            'programs' => $programs,
+            'paging' => $this->modelProgram->getPagingElements()
         ]);
     }
 
