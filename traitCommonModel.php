@@ -121,7 +121,7 @@ trait CommonModel
         return $this;
     }
 
-    public function first()
+    public function getOne()
     {
         $data = $this->first([], $this->where);
         if($data) return $this->parseEntity($data);
