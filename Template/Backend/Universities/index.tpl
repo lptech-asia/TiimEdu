@@ -36,7 +36,6 @@
                                 <th>{{ LANG.t(REQUEST.vs(0) ~ '_universities_type', 'Type') }}</th>
                                 <th>{{ LANG.t(REQUEST.vs(0) ~ '_universities_author', "Created By") }}</th>
                                 <th>{{ LANG.t(REQUEST.vs(0) ~ '_updated_at', "Updated") }}</th>
-                                <th style="width: 80px">{{ LANG.t(REQUEST.vs(0) ~ '_status', 'Trạng thái') }}</th>
                                 <th style="width: 40px">{{ LANG.t(REQUEST.vs(0) ~ '_detail', 'Chi tiết') }}</th>
                                 <th style="width: 40px">{{ LANG.t(REQUEST.vs(0) ~ '_delete', 'Xoá') }}</th>
                             </tr>

@@ -44,7 +44,7 @@
                         </td>
                         <td>{{ item.getRegisterDate }}</td>
                         <td>
-                            <a href="{{ MODULE_URL }}student/{{ item.getId }}" class="btn btn-primary"><i class="fa fa-eye"></i></a>
+                            <a href="{{ MODULE_URL }}school/{{ item.getId }}" class="btn btn-primary"><i class="fa fa-eye"></i></a>
                         </td>
                     </tr>
                     {% endfor %}

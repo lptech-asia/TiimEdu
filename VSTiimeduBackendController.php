@@ -21,8 +21,10 @@ class VSTiimeduBackendController extends VSControllerBackend
     {
         parent::__construct();
         $this->admin          = VSAdmin::getInstance()->getAuthenticatedAdmin();
+        $this->modelMasterUser = VSModel::getInstance()->load('User');
         $this->model = VSModel::getInstance()->load($this);
         $this->modelUser = VSModel::getInstance()->load($this->model, 'Users/');
+        $this->modelConversations = VSModel::getInstance()->load($this->model, 'Conversations/');
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
         $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
         $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
@@ -32,8 +34,14 @@ class VSTiimeduBackendController extends VSControllerBackend
 
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
+        $this->modelApplications = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
+            ->addModel('modelUser', $this->modelUser)
+            ->addModel('modelSchool', $this->modelSchool)
+            ->addModel('modelProgram', $this->modelProgram)
+            ->addModel('modelScholarship', $this->modelScholarships)
+            ->addModel('modelConversations', $this->modelConversations);
 
-        $this->modelMasterUser = VSModel::getInstance()->load('User');
+
     }
     private function __setStatus($model = null, $status = 0)
     {
@@ -82,19 +90,52 @@ class VSTiimeduBackendController extends VSControllerBackend
     public function students() 
     {
         $students = $this->modelUser->getUser(1);
-        $this->view->render('Backend/students', [
+        $this->view->render('Backend/Students/index', [
             'students' => $students,
+            'paging'    => $this->modelUser->getPagingElements()
+        ]);
+    }
+
+    public function student() 
+    {
+        try {
+            $student = $this->modelStudent->getItem($this->request->vs(2));
+            $user = $this->modelMasterUser->getItem($student->getUserId());
+            $applications = $this->modelApplications->where('user_id', $user->getId())->getPagination();
+            $this->view->render('Backend/Students/detail', [
+                'students' => $student,
+                'user'     => $user,
+                'applications' => $applications,
+                'paging'    => $this->modelApplications->getPagingElements()
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
+    }
+
+    public function schools() 
+    {
+        $schools = $this->modelUser->getUser(2);
+        $this->view->render('Backend/Schools/index', [
+            'schools' => $schools,
             'paging'    => $this->modelUser->getPagingElements()
         ]);
     }
 
     public function school() 
     {
-        $schools = $this->modelUser->getUser(2);
-        $this->view->render('Backend/schools', [
-            'schools' => $schools,
-            'paging'    => $this->modelUser->getPagingElements()
-        ]);
+        try {
+            $user = $this->modelMasterUser->getItem($this->request->vs(2));
+            $school = $this->modelSchool->getByUserId($user->getId());
+            $this->view->render('Backend/Schools/detail', [
+            'school' => $school,
+            'user'   => $user,
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
     }
 
     public function countries()
@@ -308,13 +349,24 @@ class VSTiimeduBackendController extends VSControllerBackend
     // detail of university
     public function university()
     {
-        $university = $this->modelSchool->getItem($this->request->vs(2));
-        $programs   =  $this->modelProgram->where('school_id',$university->getId())->getPagination();
-        $this->view->render('Backend/Universities/detail', [
-            'university' => $university,
-            'programs'   => $programs,
-            'paging'    => $this->modelProgram->getPagingElements()
-        ]);
+        try {
+            $university = $this->modelSchool->getItem($this->request->vs(2));
+            $programs   =  $this->modelProgram->where('school_id', $university->getId())->getPagination();
+            $user = false;
+            if($university && $university->getUserId())
+            {
+                $user = $this->modelMasterUser->getItem($university->getUserId());
+            }
+            $this->view->render('Backend/Universities/detail', [
+                'university' => $university,
+                'programs'   => $programs,
+                'user'       => $user,
+                'paging'    => $this->modelProgram->getPagingElements()
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
     }
 
     // detail of documents
@@ -362,6 +414,11 @@ class VSTiimeduBackendController extends VSControllerBackend
     {
         $this->__deleteItem($this->modelDocumentType, $this->request->vs(2));
     }
+    
+    public function deleteUniversity()
+    {
+        $this->__deleteItem($this->modelSchool, $this->request->vs(2));
+    }
 
     public function editDocumentType()
     {
@@ -373,7 +430,11 @@ class VSTiimeduBackendController extends VSControllerBackend
 
     public function applications()
     {
-        $this->view->render('Backend/applications');
+        $applications = $this->modelApplications->getPagination();
+        $this->view->render('Backend/Applications/index', [
+            'applications' => $applications,
+            'paging'    => $this->modelApplications->getPagingElements()
+        ]);
     }
 
     public function events()
