@@ -121,10 +121,17 @@ trait CommonModel
         return $this;
     }
 
+    public function first()
+    {
+        $data = $this->first([], $this->where);
+        if($data) return $this->parseEntity($data);
+        return false;
+    }
     public function getAll()
     {
         $data = $this->get([], $this->where);
-        return $this->parseEntities($data);
+        if($data) return $this->parseEntities($data);
+        return false;
     }
 
     public function getPagination()
