@@ -105,6 +105,12 @@ trait CommonModel
         return false;
     }
 
+    public function limit($limit = 15)
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
     public function where($key, $value)
     {
         $this->where[$this->getFieldPrefix() . $key] = $value;
@@ -139,7 +145,8 @@ trait CommonModel
         $elms = array(
             'columns' => array(),
             'where' => $this->where,
-            'order' => $this->order
+            'order' => $this->order,
+            'pagesize' => $this->limit ?? 15
         );
         $data = $this->getPaging($elms);
         return $this->parseEntities($data);

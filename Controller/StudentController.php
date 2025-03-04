@@ -32,6 +32,8 @@ class StudentController extends VSControllerPublic
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
         $this->modelSchool->addModel('modelProgram', $this->modelProgram);
+        $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelSchool', $this->modelSchool);
     }
 
     public function index()
@@ -272,11 +274,26 @@ class StudentController extends VSControllerPublic
 
     public function applicants()
     {
-        $this->view->render('Tiimedu/Student/applicants');
+        $vars = [];
+        $status = $this->request->vs(3) ?? 0;
+        $vars['applicants'] = $this->modelApplication->where('status', $status)->limit(12)->getPagination();
+        $vars['submited'] = $this->modelApplication->where('status', 0)->countItem();
+        $vars['viewed'] = $this->modelApplication->where('status', 1)->countItem();
+        $vars['agreed'] = $this->modelApplication->where('status', 2)->countItem();
+        $vars['refused'] = $this->modelApplication->where('status', 3)->countItem();
+        $vars['paging'] = $this->modelApplication->getPagingElements();
+        $this->view->render('Tiimedu/Student/applicants', $vars);
     }
 
     public function applicantDetail()
     {
+        $applicantId = $this->request->vs(3);
+        $applicant = $this->modelApplication->getItem($applicantId);
+        $user = $this->modelUser->getItem($applicant->getUserId());
+        $this->view->render('Tiimedu/Student/applicants.detail', [
+            'applicant' => $applicant,
+            'user' => $user,
+        ]);
         $this->view->render('Tiimedu/Student/applicants.detail');
     }
 

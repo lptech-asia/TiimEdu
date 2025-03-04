@@ -19,4 +19,14 @@ class VSTiimeduStudentApplicationsEntity extends VSEntity
     }
     
     public function __construct() {}
+    
+    public function getSchool()
+    {
+        if($this->modelSchool)
+        {
+            $school = $this->modelSchool->getItem($this->getSchoolId());
+            return $school;
+        }
+        return false;
+    }
 }
