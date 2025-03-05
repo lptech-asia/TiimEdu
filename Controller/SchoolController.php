@@ -88,11 +88,12 @@ class SchoolController extends VSControllerPublic
                 ];
             }
 
-            VSJson::response($result);
         }
         catch(VSException $e) {
             $result['status'] = false;
             $result['message'] = $e->message();
+            VSDebug::log($e->message());
         }
+        VSJson::response($result);
     }
 }
