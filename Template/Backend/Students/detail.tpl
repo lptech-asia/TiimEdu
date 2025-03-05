@@ -19,7 +19,7 @@ hr {margin-top:unset;}
         <div class="tab-content">
             <div class="tab-pane active" id="tab_1">
                 <div class="row">
-                    <form class="col-md-8" action="{{ MODULE_URL }}" method="post">
+                    <form class="col-md-8" action="{{ MODULE_URL }}" method="post" disabled>
                         <div class="box">
                             <div class="box-body">
                                 <div class="row">
@@ -119,10 +119,10 @@ hr {margin-top:unset;}
                                 </div>
                                 </div>
                             </div>
-                            <div class="box-footer">
+                            {# <div class="box-footer">
                                 <button class="btn btn-default">Trở về</button>
                                 <button type="submit" class="btn btn-primary pull-right">Cập nhật</button>
-                            </div>
+                            </div> #}
                         </div>
 
                         
@@ -131,7 +131,7 @@ hr {margin-top:unset;}
                     <div class="col-md-4">
                         <div class="box box-primary">
                             <div class="box-body box-profile">
-                                <img class="profile-user-img img-responsive img-circle" src="{{ ROOT_URL }}themes/vendor/AdminLTE/dist/img/avatar.png" alt="User profile picture">
+                                <img class="profile-user-img img-responsive img-circle" src="{{ user.getAvatar is not empty ?  user.getAvatar : ROOT_URL ~'themes/vendor/AdminLTE/dist/img/avatar.png' }}" alt="User profile picture">
                                 <h3 class="profile-username text-center"> {{ user.getName }}</h3>
                                 <p class="text-muted text-center">{{ user.getCreatedAt }}</p>
                                 <ul class="list-group list-group-unbordered">
