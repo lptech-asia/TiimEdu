@@ -40,8 +40,9 @@ class VSTiimeduBackendController extends VSControllerBackend
             ->addModel('modelProgram', $this->modelProgram)
             ->addModel('modelScholarship', $this->modelScholarships)
             ->addModel('modelConversations', $this->modelConversations);
-
-
+        $this->modelEvents = VSModel::getInstance()->load($this->model, 'Event/')
+            ->addModel('modelUser', $this->modelUser)
+            ->addModel('modelSchool', $this->modelSchool);
     }
     private function __setStatus($model = null, $status = 0)
     {
@@ -439,7 +440,12 @@ class VSTiimeduBackendController extends VSControllerBackend
 
     public function events()
     {
-        $this->view->render('Backend/events');
+
+        $events = $this->modelEvents->getPagination();
+        $this->view->render('Backend/events', [
+            'events' => $events,
+            'paging'    => $this->modelEvents->getPagingElements()
+        ]);
     }
     
 }

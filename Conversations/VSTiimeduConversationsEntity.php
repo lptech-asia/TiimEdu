@@ -19,4 +19,24 @@ class VSTiimeduConversationsEntity extends VSEntity
     }
     
     public function __construct() {}
+
+    public function getSchool()
+    {
+        if($this->modelSchool)
+        {
+            $school = $this->modelSchool->getItem($this->getSchoolId());
+            return $school;
+        }
+        return false;
+    }
+
+    public function getUser()
+    {
+        if($this->modelUser)
+        {
+            $user = $this->modelUser->getItem($this->getUserId());
+            return $user;
+        }
+        return false;
+    }
 }

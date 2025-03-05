@@ -7,6 +7,7 @@
  */
 class VSTiimeduEventModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_event_checkin';
     protected $_primaryKey     = 'tiimedu_event_checkin_id';
     protected $_fieldPrefix    = 'tiimedu_event_checkin_';
