@@ -101,8 +101,9 @@ class VSTiimeduBackendController extends VSControllerBackend
     public function student() 
     {
         try {
-            $student = $this->modelStudent->getItem($this->request->vs(2));
-            $user = $this->modelMasterUser->getItem($student->getUserId());
+            $user = $this->modelMasterUser->getItem($this->request->vs(2));
+            if(!$user) $this->error404();
+            $student = $this->modelStudent->where('user_id',$user->getId())->getOne();
             $applications = $this->modelApplications->where('user_id', $user->getId())->getPagination();
             // ddd($applications);
             $documents = $this->modelDocument->where('user_id', $user->getId())->getAll();
