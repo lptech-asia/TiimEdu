@@ -36,7 +36,7 @@ class VSTiimeduBackendController extends VSControllerBackend
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelApplications = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
-            ->addModel('modelUser', $this->modelUser)
+            ->addModel('modelMasterUser', $this->modelMasterUser)
             ->addModel('modelSchool', $this->modelSchool)
             ->addModel('modelProgram', $this->modelProgram)
             ->addModel('modelScholarship', $this->modelScholarships)
@@ -479,7 +479,8 @@ class VSTiimeduBackendController extends VSControllerBackend
     {
         try {
             $university = $this->modelSchool->getItem($this->request->vs(2));
-            $programs   =  $this->modelProgram->where('school_id', $university->getId())->getPagination();
+            $countProgram = $this->modelProgram->where('school_id', $university->getId())->countItem();
+            $countApplication = $this->modelApplications->where('school_id', $university->getId())->countItem();
             $user = false;
             if($university && $university->getUserId())
             {
@@ -487,14 +488,69 @@ class VSTiimeduBackendController extends VSControllerBackend
             }
             $this->view->render('Backend/Universities/detail', [
                 'university' => $university,
-                'programs'   => $programs,
                 'user'       => $user,
+                'countProgram' => $countProgram,
+                'countApplication' => $countApplication
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
+    }
+
+    // detail of university
+    public function program()
+    {
+        try {
+            $university = $this->modelSchool->getItem($this->request->vs(2));
+            $programs   =  $this->modelProgram->where('school_id', $university->getId())->getPagination();
+            $countProgram = $this->modelProgram->where('school_id', $university->getId())->countItem();
+            $countApplication = $this->modelApplications->where('school_id', $university->getId())->countItem();
+            $this->view->render('Backend/Universities/program', [
+                'university' => $university,
+                'programs'   => $programs,
+                'countProgram' => $countProgram,
+                'countApplication' => $countApplication,
                 'paging'    => $this->modelProgram->getPagingElements()
             ]);
         } catch (VSException $e) {
             $this->setErrors($e->getMessage());
             $this->error404();
         }
+    }
+
+    public function candidate()
+    {
+        try {
+            $university = $this->modelSchool->getItem($this->request->vs(2));
+            $countProgram = $this->modelProgram->where('school_id', $university->getId())->countItem();
+            $countApplication = $this->modelApplications->where('school_id', $university->getId())->countItem();
+            $applications = $this->modelApplications->where('school_id', $university->getId())->getPagination();
+            $this->view->render('Backend/Universities/candidate', [
+                'university' => $university,
+                'countProgram' => $countProgram,
+                'countApplication' => $countApplication,
+                'applications' => $applications,
+                'paging'    => $this->modelApplications->getPagingElements()
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
+    }
+
+    public function postUniversity()
+    {
+        $data = $this->request->post();
+        $id = $data['id'] ?? false;
+        unset($data['id']);
+        try {
+            $this->modelSchool->edit($id, $data);
+            $this->setMessage('Cập nhật thông tin trường thành công');
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+        }
+        VSRedirect::to('tiimedu/university/' . $id);
     }
 
     // detail of documents
