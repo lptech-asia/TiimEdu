@@ -229,7 +229,7 @@ class StudentController extends VSControllerPublic
         $keyword = $this->request->get('country') ?? null;
         if($keyword)
         {
-            $countries = $this->modelCountry->searchTitle($keyword);
+            $countries = $this->modelCountry->searchLike(['name' => $keyword]);
         } else {
             $countries = $this->modelCountry->getPagination();
         }
