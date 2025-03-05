@@ -134,15 +134,60 @@ class VSTiimeduBackendController extends VSControllerBackend
         try {
             $user = $this->modelMasterUser->getItem($this->request->vs(2));
             $school = $this->modelSchool->getByUserId($user->getId());
+            // ddd($user);
             $this->view->render('Backend/Schools/detail', [
-            'school' => $school,
-            'user'   => $user,
+                'school' => $school,
+                'user'   => $user,
             ]);
         } catch (VSException $e) {
             $this->setErrors($e->getMessage());
             $this->error404();
         }
     }
+
+    public function postLiveSearchUniversity()
+    {
+        $params['keyword'] = $this->request->post('q');
+        $error = false;
+        $results = [];
+        try {
+            if (empty($params)) {
+                throw new VSException("Không có giá trị tìm kiếm nào được yêu cầu", 'hotel_search_empty_parameter');
+            }
+            if (isset($params['keyword'])) {
+                if (VSString::length($params['keyword']) < 3) {
+                    throw new VSException("Bạn phải nhập vào ít nhất 3 ký tự để tìm kiếm", 'hotel_search_short_title');
+                }
+
+                $title = htmlentities($params['keyword']);
+                unset($params['keyword']);
+                // Find location provinces
+                $schools = $this->modelSchool->setOperator('OR')->searchLike(['name' => $title, 'sku' => $title]);
+                foreach($schools as $school)
+                {
+                    $results[] = [
+                        'id' => $school->getId(),
+                        'name' => $school->getName(),
+                        'sku'   => $school->getSku()
+                    ];
+                }
+            }
+        } catch (VSException $msg) {
+            $error = true;
+        }
+        VSResponse::json(array('error' => $error, 'data' => $results));
+    }
+
+    public function postAddSchoolToUser()
+    {
+        $data = $this->request->post();
+        if($data['school_id'] && $data['user_id'])
+        {
+            $this->modelSchool->edit($data['school_id'], ['user_id' => $data['user_id']]);
+        }
+        VSRedirect::to('tiimedu/school/' . $data['user_id']);
+    }
+
 
     public function countries()
     {

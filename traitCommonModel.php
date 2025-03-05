@@ -3,6 +3,9 @@ trait CommonModel
 {
     public $where = [];
     public $order = '';
+    public $limit = 15;
+    public $operator = 'AND';
+
     public function addModel($name, $model)
     {
         $this->model = $model;
@@ -150,6 +153,28 @@ trait CommonModel
         );
         $data = $this->getPaging($elms);
         return $this->parseEntities($data);
+    }
+
+    public function setOperator($operator = 'AND')
+    {
+        $this->operator = $operator;
+        return $this;
+    }
+    public function searchLike($where = [])
+    {
+        if(!$where) return false;
+        $sql = "SELECT * FROM {$this->_tableName} WHERE ";
+        foreach($where as $key => $value)
+        {
+            $sql .= "{$this->_fieldPrefix}{$key} LIKE " . $this->doQuote('%' . $value . '%');
+            if($key !== array_key_last($where))
+            {
+                $sql .= " {$this->operator} ";
+            }
+        }
+        $data = $this->query($sql);
+        $items = $this->parseEntities($data);
+        return $items;
     }
 
 

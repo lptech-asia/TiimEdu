@@ -141,9 +141,6 @@ hr {margin-top:unset;}
                                     <li class="list-group-item">
                                         <b>Phone</b> <a class="pull-right">{{ user.getPhone }}</a>
                                     </li>
-                                    <li class="list-group-item">
-                                        <b>Address</b> <a class="pull-right">{{ user.getAddress }}</a>
-                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -218,6 +215,7 @@ hr {margin-top:unset;}
                                     <th>File</th>
                                     <th>Loại</th>
                                     <th>Ngày cập nhật</th>
+                                    <th>Action</th>
                                 </tr>
                                 {% for document in documents %}
                                 <tr>
@@ -226,6 +224,11 @@ hr {margin-top:unset;}
                                     <td>{{ document.getFile }}</td>
                                     <td>{{ document.getType.getName }}</td>
                                     <td>{{ document.getCreatedAt|date('d/m/Y h:i:s') }}</td>
+                                    <td>
+                                        <a href="{{ document.getFile }}" data-toggle="lightbox" data-gallery="file_images_imgs" data-title="{{ document.getName }}" class="btn btn-primary">
+                                            <i class="fa fa-eye"></i> View
+                                        </a>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </table>
