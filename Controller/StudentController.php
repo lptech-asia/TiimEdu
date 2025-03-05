@@ -226,8 +226,15 @@ class StudentController extends VSControllerPublic
 
     public function countries()
     {
+        $keyword = $this->request->get('country') ?? null;
+        if($keyword)
+        {
+            $countries = $this->modelCountry->searchLike(['name' => $keyword]);
+        } else {
+            $countries = $this->modelCountry->getPagination();
+        }
         $vars = [
-            'countries' => $this->modelCountry->getPagination(),
+            'countries' => $countries,
             'paging' => $this->modelCountry->getPagingElements()
         ];
         $this->view->render('Tiimedu/Student/countries', $vars);
@@ -261,7 +268,6 @@ class StudentController extends VSControllerPublic
             $this->error404();
         }
     }
-    
     public function apply()
     {
         $this->view->render('Tiimedu/Student/apply');
@@ -297,4 +303,6 @@ class StudentController extends VSControllerPublic
         $vars['schoolarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
         $this->view->render('Tiimedu/Student/applicants.detail', $vars);
     }
+
+    
 }

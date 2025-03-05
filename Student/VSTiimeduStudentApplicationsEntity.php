@@ -63,4 +63,15 @@ class VSTiimeduStudentApplicationsEntity extends VSEntity
         }
         return 0;
     }
+
+
+    public function getUser()
+    {
+        if($this->modelMasterUser)
+        {
+            $user = $this->modelMasterUser->getItem($this->getUserId());
+            return $user;
+        }
+        return false;
+    }
 }

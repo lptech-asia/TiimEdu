@@ -1,12 +1,15 @@
 {% extends 'layout.tpl' %}
-{% block header %}
-    {{ LANG.t(REQUEST.vs(0) ~ 'applications_index_header',"Hồ sơ ứng tuyển") }}
+{% block custom_css %}
 {% endblock %}
+{% block header %}Chương trình học {% endblock %}
 {% block body %}
+<div class="col-md-12">
+    {% include 'Backend/Universities/counter.tpl' %}
+</div>
 <div class="col-md-12">
     <div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">Danh sách hồ sơ ứng tuyển</strong></h3>
+            <h3 class="box-title">Danh sách ứng viên</strong></h3>
         </div>
         <div class="box-body">
             <div class="table-responsive">
@@ -14,9 +17,6 @@
                     <tr>
                         <th>#</th>
                         <th>Ứng viên</th>
-                        {# <th>Thông tin ứng viên</th> #}
-                        <th>Trường</th>
-                        {# <th>Thông tin trường</th> #}
                         <th>Chương trình học</th>
                         <th>Học bổng</th>
                         <th>Hỗ trợ</th>
@@ -27,14 +27,12 @@
                     {% if applications %}
                         {% for item in applications %}
                             {% set user = item.getUser %}
-                            {% set school = item.getSchool %}
                             {% set program = item.getProgram %}
                             {% set scholarship = item.getScholarship %}
                             {% set supportCount = item.countConversations %}
                             <tr>
                                 <td>{{ item.getId }}</td>
                                 <td> {{ user.getName }}</td>
-                                <td>{{ school.getName }}</td>
                                 <td>{{ program.getProgramName }}</td>
                                 <td>
                                     <strong>{{ scholarship.getName }}</strong><br>
@@ -67,4 +65,5 @@
 </div>
 {% endblock %}
 {% block custom_js %}
+    {% include 'partials/rte.tpl' %}
 {% endblock custom_js %}

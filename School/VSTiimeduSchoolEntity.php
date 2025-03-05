@@ -27,4 +27,14 @@ class VSTiimeduSchoolEntity extends VSEntity
         $count = $this->modelProgram->where('school_id',$this->getId())->countItem();
         return $count;
     }
+
+    public function getUser()
+    {
+        if($this->modelUser)
+        {
+            $user = $this->modelUser->getItem($this->getUserId());
+            return $user;
+        }
+        return false;
+    }
 }

@@ -3,6 +3,9 @@ trait CommonModel
 {
     public $where = [];
     public $order = '';
+    public $limit = 15;
+    public $operator = 'AND';
+
     public function addModel($name, $model)
     {
         $this->model = $model;
@@ -19,12 +22,14 @@ trait CommonModel
         }
         return false;
     }
+
     public function getLoggined()
     {
         $modelUser = VSModel::getInstance()->load('User');
         $user = $modelUser->getLoggedIn();
         return $user;
     }
+    
     public function processFileUpload($inputFiles , $folderId, $folderName = 'files')
 	{
         $this->modelTypes       = VSFileType::getInstance();
@@ -80,17 +85,7 @@ trait CommonModel
             }
         }
 	}
-    public function countByStatus($status = null, $year = null)
-    {
-        $sql_year = '';
-        if($year)
-        {
-            $sql_year = " YEAR({$this->_fieldPrefix}created_at) = {$year}";
-        }
-        $condition = $this->_fieldPrefix . 'status=' . intval($status);
-        if($status)  $condition . ' AND ' . $sql_year;
-        return $this->count($status ? $condition : $sql_year);
-    }
+
     public function isExist($name = null, $value = null)
     {
         $name = $name ? $this->_fieldPrefix . $name :  $this->_primaryKey;
@@ -152,6 +147,37 @@ trait CommonModel
         return $this->parseEntities($data);
     }
 
+    public function setOperator($operator = 'AND')
+    {
+        $this->operator = $operator;
+        return $this;
+    }
+
+    public function searchLike($where = [])
+    {
+        if(!$where) return false;
+        $sql = "SELECT * FROM {$this->_tableName} WHERE ";
+        foreach($where as $key => $value)
+        {
+            $sql .= "{$this->_fieldPrefix}{$key} LIKE " . $this->doQuote('%' . $value . '%');
+            if($key !== array_key_last($where))
+            {
+                $sql .= " {$this->operator} ";
+            }
+        }
+        $data = $this->query($sql);
+        $items = $this->parseEntities($data);
+        return $items;
+    }
+
+
+    public function setNull($column = '')
+    {
+        $sql = "UPDATE {$this->_tableName} SET {$this->_fieldPrefix}{$column} = NULL WHERE ";
+        $sql .= $this->__parseWhere();
+        return $this->query($sql, [$column]);
+    }
+
 
     // delete all
     public function reset()
@@ -161,14 +187,22 @@ trait CommonModel
 
     public function countItem()
     {
-        $sqlWhere = '';
-        foreach ($this->where as $key => $value) {
-            $sqlWhere .= $key . ' = ' . $this->doQuote($value);
+        $sql = $this->__parseWhere();
+        return $this->count($sql);
+    }
+
+
+    protected function __parseWhere()
+    {
+        $sql = '';
+        foreach($this->where as $key => $value)
+        {
+            $sql .= $key . ' = ' . $this->doQuote($value);
             if($key !== array_key_last($this->where))
             {
-                $sqlWhere .= ' AND ';
+                $sql .= " {$this->operator} ";
             }
         }
-        return $this->count($sqlWhere);
+        return $sql;
     }
 }
