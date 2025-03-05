@@ -73,6 +73,26 @@ class SchoolController extends VSControllerPublic
         $this->view->render('Tiimedu/School/candidate.visit');
     }
     
+    public function postScholarships()
+    {
+        $id = $this->request->post('program_id');
+        $result = ['status' => true, 'message' => ''];
+        try {
+            $scholarships = $this->modelScholarships->where('program_id', $id)->getAll();
 
+            foreach($scholarships as $scholarship) {
+                $result['data'][] = [
+                    'id' => $scholarship->getId(),
+                    'name' => $scholarship->getName(),
+                    'description' => $scholarship->getDescription()
+                ];
+            }
 
+            VSJson::response($result);
+        }
+        catch(VSException $e) {
+            $result['status'] = false;
+            $result['message'] = $e->message();
+        }
+    }
 }
