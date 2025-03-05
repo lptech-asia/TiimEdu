@@ -22,12 +22,14 @@ trait CommonModel
         }
         return false;
     }
+
     public function getLoggined()
     {
         $modelUser = VSModel::getInstance()->load('User');
         $user = $modelUser->getLoggedIn();
         return $user;
     }
+    
     public function processFileUpload($inputFiles , $folderId, $folderName = 'files')
 	{
         $this->modelTypes       = VSFileType::getInstance();
@@ -83,17 +85,7 @@ trait CommonModel
             }
         }
 	}
-    public function countByStatus($status = null, $year = null)
-    {
-        $sql_year = '';
-        if($year)
-        {
-            $sql_year = " YEAR({$this->_fieldPrefix}created_at) = {$year}";
-        }
-        $condition = $this->_fieldPrefix . 'status=' . intval($status);
-        if($status)  $condition . ' AND ' . $sql_year;
-        return $this->count($status ? $condition : $sql_year);
-    }
+
     public function isExist($name = null, $value = null)
     {
         $name = $name ? $this->_fieldPrefix . $name :  $this->_primaryKey;
@@ -160,6 +152,7 @@ trait CommonModel
         $this->operator = $operator;
         return $this;
     }
+
     public function searchLike($where = [])
     {
         if(!$where) return false;
@@ -181,14 +174,7 @@ trait CommonModel
     public function setNull($column = '')
     {
         $sql = "UPDATE {$this->_tableName} SET {$this->_fieldPrefix}{$column} = NULL WHERE ";
-        foreach($this->where as $key => $value)
-        {
-            $sql .= "{$key} = " . $this->doQuote($value);
-            if($key !== array_key_last($this->where))
-            {
-                $sql .= " {$this->operator} ";
-            }
-        }
+        $sql .= $this->__parseWhere();
         return $this->query($sql, [$column]);
     }
 
@@ -201,14 +187,22 @@ trait CommonModel
 
     public function countItem()
     {
-        $sqlWhere = '';
-        foreach ($this->where as $key => $value) {
-            $sqlWhere .= $key . ' = ' . $this->doQuote($value);
+        $sql = $this->__parseWhere();
+        return $this->count($sql);
+    }
+
+
+    protected function __parseWhere()
+    {
+        $sql = '';
+        foreach($this->where as $key => $value)
+        {
+            $sql .= $key . ' = ' . $this->doQuote($value);
             if($key !== array_key_last($this->where))
             {
-                $sqlWhere .= ' AND ';
+                $sql .= " {$this->operator} ";
             }
         }
-        return $this->count($sqlWhere);
+        return $sql;
     }
 }
