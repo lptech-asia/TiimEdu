@@ -48,7 +48,7 @@
                                 </td>
                                 <td>{{ item.getCreatedAt|date('d/m/Y h:i') }}</td>
                                 <td>
-                                    <a href="{{ MODULE_URL }}school/{{ item.getId }}" class="btn btn-primary"><i class="fa fa-eye"></i></a>
+                                    <a href="{{ MODULE_URL }}application/{{ item.getId }}" class="btn btn-primary"><i class="fa fa-eye"></i></a>
                                 </td>
                             </tr>
                         {% endfor %}

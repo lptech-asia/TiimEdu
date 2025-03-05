@@ -178,6 +178,21 @@ trait CommonModel
     }
 
 
+    public function setNull($column = '')
+    {
+        $sql = "UPDATE {$this->_tableName} SET {$this->_fieldPrefix}{$column} = NULL WHERE ";
+        foreach($this->where as $key => $value)
+        {
+            $sql .= "{$key} = " . $this->doQuote($value);
+            if($key !== array_key_last($this->where))
+            {
+                $sql .= " {$this->operator} ";
+            }
+        }
+        return $this->query($sql, [$column]);
+    }
+
+
     // delete all
     public function reset()
     {

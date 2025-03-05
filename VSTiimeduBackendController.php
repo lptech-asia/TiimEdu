@@ -26,7 +26,7 @@ class VSTiimeduBackendController extends VSControllerBackend
         $this->modelUser = VSModel::getInstance()->load($this->model, 'Users/');
         $this->modelConversations = VSModel::getInstance()->load($this->model, 'Conversations/');
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
-        $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
+        $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/')->addModel('modelUser', $this->modelMasterUser);
         $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
@@ -135,7 +135,6 @@ class VSTiimeduBackendController extends VSControllerBackend
         try {
             $user = $this->modelMasterUser->getItem($this->request->vs(2));
             $school = $this->modelSchool->getByUserId($user->getId());
-            // ddd($user);
             $this->view->render('Backend/Schools/detail', [
                 'school' => $school,
                 'user'   => $user,
@@ -181,10 +180,26 @@ class VSTiimeduBackendController extends VSControllerBackend
 
     public function postAddSchoolToUser()
     {
+        $error = false;
         $data = $this->request->post();
         if($data['school_id'] && $data['user_id'])
         {
-            $this->modelSchool->edit($data['school_id'], ['user_id' => $data['user_id']]);
+            $school = $this->modelSchool->getItem($data['school_id']);
+            if($school->getUserId())
+            {
+                $error = true;
+                $this->setErrors("Trường <strong>{$school->getName()}</strong> đã được gán cho người dùng <strong>{$school->getUser()->getEmail()}</strong> khác");
+            }
+            
+            if(!$error)
+            {
+                // remove old school
+                $this->modelSchool->where('user_id', $data['user_id'])->setNull('user_id');
+                // add new school    
+                $this->modelSchool->edit($data['school_id'], ['user_id' => $data['user_id']]);
+                $this->setMessage("Trường <strong>{$school->getName()}</strong> đã được gán thành công!");
+
+            }
         }
         VSRedirect::to('tiimedu/school/' . $data['user_id']);
     }
