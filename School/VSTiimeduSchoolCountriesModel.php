@@ -25,4 +25,12 @@ class VSTiimeduSchoolCountriesModel extends VSModelBackend
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
     }
+
+    public function searchTitle($title = null)
+    {
+        $sql = "SELECT * FROM {$this->_tableName} where {$this->_fieldPrefix}name like {$this->doQuote('%' .$title. '%')}";
+        $data = $this->query($sql);
+        $items = $this->parseEntities($data);
+        return $items;
+    }
 }
