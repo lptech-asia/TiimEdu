@@ -26,6 +26,7 @@ class StudentController extends VSControllerPublic
         $this->modelGemini = VSModel::getInstance()->load($this->model, 'Gemini/');
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
+        $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
         $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
