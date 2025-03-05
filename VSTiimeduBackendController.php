@@ -34,6 +34,7 @@ class VSTiimeduBackendController extends VSControllerBackend
 
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
+        $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelApplications = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
             ->addModel('modelUser', $this->modelUser)
             ->addModel('modelSchool', $this->modelSchool)
@@ -103,10 +104,14 @@ class VSTiimeduBackendController extends VSControllerBackend
             $student = $this->modelStudent->getItem($this->request->vs(2));
             $user = $this->modelMasterUser->getItem($student->getUserId());
             $applications = $this->modelApplications->where('user_id', $user->getId())->getPagination();
+            // ddd($applications);
+            $documents = $this->modelDocument->where('user_id', $user->getId())->getAll();
+            // ddd($documents);
             $this->view->render('Backend/Students/detail', [
-                'students' => $student,
+                'student' => $student,
                 'user'     => $user,
                 'applications' => $applications,
+                'documents' => $documents,
                 'paging'    => $this->modelApplications->getPagingElements()
             ]);
         } catch (VSException $e) {
@@ -440,7 +445,6 @@ class VSTiimeduBackendController extends VSControllerBackend
 
     public function events()
     {
-
         $events = $this->modelEvents->getPagination();
         $this->view->render('Backend/events', [
             'events' => $events,

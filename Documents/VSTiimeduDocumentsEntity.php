@@ -18,5 +18,17 @@ class VSTiimeduDocumentsEntity extends VSEntity
         return self::$__instance;
     }
     
-    public function __construct() {}
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function getType()
+    {
+        if($this->modelDocumentType)
+        {
+            $type = $this->modelDocumentType->getItem($this->getTypeId());
+            return $type; 
+        }
+        return false;
+    }
 }
