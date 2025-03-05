@@ -275,8 +275,9 @@ class StudentController extends VSControllerPublic
     public function applicants()
     {
         $vars = [];
+        $user = $this->user;
         $status = $this->request->vs(3) ?? 0;
-        $vars['applicants'] = $this->modelApplication->where('status', $status)->limit(12)->getPagination();
+        $vars['applicants'] = $this->modelApplication->where('user_id', $user->getId())->where('status', $status)->limit(12)->getPagination();
         $vars['submited'] = $this->modelApplication->where('status', 0)->countItem();
         $vars['viewed'] = $this->modelApplication->where('status', 1)->countItem();
         $vars['agreed'] = $this->modelApplication->where('status', 2)->countItem();
@@ -287,15 +288,13 @@ class StudentController extends VSControllerPublic
 
     public function applicantDetail()
     {
+        $vars = [];
         $applicantId = $this->request->vs(3);
         $applicant = $this->modelApplication->getItem($applicantId);
-        $user = $this->modelUser->getItem($applicant->getUserId());
-        $this->view->render('Tiimedu/Student/applicants.detail', [
-            'applicant' => $applicant,
-            'user' => $user,
-        ]);
-        $this->view->render('Tiimedu/Student/applicants.detail');
+        $vars['applicant'] = $applicant;
+        $vars['student'] = $this->user->student;
+        $vars['documents'] = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
+        $vars['schoolarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+        $this->view->render('Tiimedu/Student/applicants.detail', $vars);
     }
-
-
 }
