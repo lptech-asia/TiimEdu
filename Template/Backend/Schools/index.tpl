@@ -22,7 +22,6 @@
                         <th>{{ LANG.t('user_email',"Email") }}</th>
                         <th>{{ LANG.t('user_phone',"Số điện thoại") }}</th>
                         <th>Địa chỉ</th>
-                        <th>Trường</th>
                         <th>Trạng thái</th>
                         <th>{{ LANG.t('user_register_date',"Ngày đăng ký") }}</th>
                         <th>Chi tiết</th>
@@ -38,7 +37,6 @@
                             {{ item.getPhone ?? 'N/A' }}
                         </td>
                         <td>{{ item.getAddress ?? 'N/A' }}</td>
-                        <td>N/A</td>
                         <td>
                             <span class="label label-{{ item.getStatus ? 'success' : 'danger' }}">{{ item.getStatus ? 'Hoạt động' : 'Chưa kích hoạt' }}</span>
                         </td>
@@ -68,25 +66,21 @@
                 <form role="form" method="post" action="{{ MODULE_URL }}createUserSchool">
                     <div class="form-group">
                         <label>Họ và Tên</label>
-                        <input type="text" class="form-control" name="name">
+                        <input type="text" class="form-control" name="name" required placeholder="Nhập họ và tên">
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="text" class="form-control" name="email" required>
+                        <input type="text" class="form-control" name="email" required placeholder="Nhập email">
                     </div>
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="text" class="form-control" name="phone">
+                        <input type="text" class="form-control" name="phone" placeholder="Nhập số điện thoại">
                     </div>
                     {# create select option to select university #}
                     <div class="form-group">
-                        <label>University</label> <br>
-                        <select class="form-control select2" name="university">
-                            {# option default #}
-                            <option value="">Chọn trường quản lý</option>
-                            {% for university in universities %}
-                                <option value="{{ university.id }}">{{ university.name }}</option>
-                            {% endfor %}
+                        <label>Tên Trường/SKU</label> <br>
+                        <select name="school_id" class="select2 form-control live-search-school" id="live-search-school" required> 
+                            <option disabled selected>Chọn Trường Học</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -102,4 +96,32 @@
 </div>
 {% endblock %}
 {% block custom_js %}
+<script>
+    $(document).ready(function() {
+        var $eventSelect = $("#live-search-school");
+        $eventSelect.select2({
+            minimumInputLength: 3,
+            ajax: {
+                url: '{{ MODULE_URL }}liveSearchUniversity',
+                type: 'POST',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data.data, function (item) {
+                            return {
+                                text: item.name + ' - ' +item.sku,
+                                id: item.id
+                            };
+                        })
+                    };
+                }
+            }
+        });
+    });
+</script>
 {% endblock custom_js %}

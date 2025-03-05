@@ -121,6 +121,67 @@ class VSTiimeduBackendController extends VSControllerBackend
         }
     }
 
+    public function postCreateUserSchool()
+    {
+        $postData = $this->request->post();
+
+        // Set to female
+        if (isset($postData['gender']) && $postData['gender'] != 1) {
+            $postData['gender'] = 2;
+        }
+        // Compile validation rules
+        $valid = array(
+            'email'            => 'required|valid_email',
+            'school_id'        => 'required',
+        );
+
+        if (isset($postData['name'])) {
+            $valid['name'] = 'required';
+            $postData['first_name'] = VSString::getLast($postData['name'], " ");
+            $postData['last_name']  = VSString::removeLast($postData['name'], " ");
+        }
+
+        $postData = $this->validate->run($postData, $valid);
+        $errors   = $this->validate->getErrors($this);
+
+        if ($this->modelMasterUser->checkExistEmail($this->request->post('email'))) {
+            $errors[] = $this->lang->t('user_register_error_email_duplicated', 'Email này đã được sử dụng.');
+        }
+        // add to school
+        $school = $this->modelSchool->getItem($postData['school_id']);
+        if($school->getUserId())
+        {
+            $errors[] = "Trường <strong>{$school->getName()}</strong> đã được gán cho người dùng <strong>{$school->getUser()->getEmail()}</strong> khác";
+        }
+        // Validation fail, save data and error messages to session.
+        if (!empty($errors)) {
+            $this->setErrors($errors);
+            VSSessionFlash::set('register_data', $this->request->post());
+            VSSessionFlash::set('register_error_message', $errors);
+            VSRedirect::to(VSRequest::referrer());
+        }
+
+
+        $postData['password'] = VSPassword::hash($postData['password'] ?? VSString::random(16));
+        $postData['status'] = 1;
+        $postData['token'] = VSString::random(64);
+
+        try {
+            $userId = $this->modelMasterUser->add($postData);
+            // add to tiim user
+            $this->modelUser->add(['user_id' => $userId, 'type' => 2]);
+            // add to school
+            $this->modelSchool->edit($postData['school_id'], ['user_id' => $userId]);
+            // ddd($userId);
+        } catch (VSException $e) {
+            $this->setErrors($e->message());
+            VSSession::set('register_data', $this->request->post());
+            VSSession::set('register_error_message', $e->message());
+        }
+        $this->setMessage($this->lang->t('user_register_success', 'Đăng ký tài khoản thành công.'), $this->lang->t('user_congratulation', 'Xin chúc mừng!'));
+        VSRedirect::to('tiimedu/schools');
+    }
+
     public function schools() 
     {
         $schools = $this->modelUser->getUser(2);

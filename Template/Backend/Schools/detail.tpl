@@ -294,31 +294,31 @@ hr {margin-top:unset;}
 {% endblock %}
 {% block custom_js %}
 <script>
-        $(document).ready(function() {
-            var $eventSelect = $("#live-search-school");
-            $eventSelect.select2({
-                minimumInputLength: 3,
-                ajax: {
-                    url: '{{ MODULE_URL }}liveSearchUniversity',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: function (params) {
-                        return {
-                            q: params.term
-                        };
-                    },
-                    processResults: function (data, params) {
-                        return {
-                            results: $.map(data.data, function (item) {
-                                return {
-                                    text: item.name + ' - ' +item.sku,
-                                    id: item.id
-                                };
-                            })
-                        };
-                    }
+    $(document).ready(function() {
+        var $eventSelect = $("#live-search-school");
+        $eventSelect.select2({
+            minimumInputLength: 3,
+            ajax: {
+                url: '{{ MODULE_URL }}liveSearchUniversity',
+                type: 'POST',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data.data, function (item) {
+                            return {
+                                text: item.name + ' - ' +item.sku,
+                                id: item.id
+                            };
+                        })
+                    };
                 }
-            });
+            }
         });
-    </script>
+    });
+</script>
 {% endblock custom_js %}
