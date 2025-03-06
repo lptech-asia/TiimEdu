@@ -100,6 +100,15 @@ class SchoolController extends VSControllerPublic
             $this->setErrors($this->lang->t('tiimedu_view_profile_not_allow_notice','You are not allowed to view this student profile because the student may not be enrolled in your school\'s program'));
             VSRedirect::to(VSRequest::referrer());
         }
+        // update status view
+        if($candidate->getView() == 0)
+        {
+            $this->modelEvent->edit($candidate->getId(), [
+                'view' => 1,
+                'viewed_by' => $this->currentUser->getId()
+            ]);
+        }
+        
         $vars = [
             'student' => $student,
             'documentTypes' => $this->modelDocumentType->where('status',1)->getAll()
