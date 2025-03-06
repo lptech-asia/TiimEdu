@@ -9,6 +9,7 @@
 class VSTiimeduEventEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelUser = null;
     public static function getInstance()
     {
         if (null === self::$__instance) {
