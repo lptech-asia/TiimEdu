@@ -18,5 +18,18 @@ class VSTiimeduEventEntity extends VSEntity
         return self::$__instance;
     }
     
-    public function __construct() {}
+    public function __construct() {
+        parent::__construct();
+    }
+
+
+    public function getUser()
+    {
+        if($this->modelUser)
+        {
+            $user = $this->modelUser->getItem($this->getUserId());
+            return $user;
+        }
+        return false;
+    }
 }

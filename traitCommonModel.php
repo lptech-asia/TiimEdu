@@ -125,12 +125,14 @@ trait CommonModel
     public function getOne()
     {
         $data = $this->first([], $this->where);
+        unset($this->where);
         if($data) return $this->parseEntity($data);
         return false;
     }
     public function getAll()
     {
         $data = $this->get([], $this->where);
+        unset($this->where);
         if($data) return $this->parseEntities($data);
         return false;
     }
@@ -143,6 +145,7 @@ trait CommonModel
             'order' => $this->order,
             'pagesize' => $this->limit ?? 15
         );
+        unset($this->where);
         $data = $this->getPaging($elms);
         return $this->parseEntities($data);
     }
@@ -203,6 +206,7 @@ trait CommonModel
                 $sql .= " {$this->operator} ";
             }
         }
+        unset($this->where);
         return $sql;
     }
 }
