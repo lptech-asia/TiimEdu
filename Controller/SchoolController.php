@@ -84,10 +84,14 @@ class SchoolController extends VSControllerPublic
         $totalVisitor               = $this->modelEvent->where('school_id', $this->university->getId())->countItem();
         $totalVisitorViewProfile    = $this->modelEvent->where('school_id', $this->university->getId())->where('view',1)->countItem();
         $candidates                 = $this->modelEvent->where('school_id', $this->university->getId())->getPagination();
+        $checkinUrl                 = BASE_URL . 'tiimedu/student/checkin/?school=' . base64_encode($this->university->getSku());
+        $qrcodeUrl                  = "https://quickchart.io/qr?text={$checkinUrl}&margin=1&size=500";
         $this->view->render('Tiimedu/School/candidate.visit', [
             'totalVisitor' => $totalVisitor,
             'totalVisitorViewProfile' => $totalVisitorViewProfile,
             'candidates' => $candidates,
+            'checkinUrl' => $checkinUrl,
+            'qrcodeUrl' => $qrcodeUrl,
             'paging' => $this->modelEvent->getPagingElements()
         ]);
     }

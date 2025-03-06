@@ -37,4 +37,14 @@ class VSTiimeduSchoolEntity extends VSEntity
         }
         return false;
     }
+
+    public function getCountry()
+    {
+        if($this->modelCountry)
+        {
+            $country = $this->modelCountry->getItem($this->getCountryId());
+            return $country;
+        }
+        return false;
+    }
 }

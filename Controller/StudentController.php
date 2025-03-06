@@ -32,7 +32,7 @@ class StudentController extends VSControllerPublic
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
-        $this->modelSchool->addModel('modelProgram', $this->modelProgram);
+        $this->modelSchool->addModel('modelProgram', $this->modelProgram)->addModel('modelCountry', $this->modelCountry);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
         $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelSchool', $this->modelSchool);
     }
@@ -45,7 +45,12 @@ class StudentController extends VSControllerPublic
     // event / module checkin
     public function checkin()
     {
-        $this->view->render('Tiimedu/Student/checkin');
+        $encode = $this->request->get('school') ?? null;
+        $sku = base64_decode($encode);
+        $school = $this->modelSchool->where('sku', $sku)->getOne();
+        $this->view->render('Tiimedu/Student/checkin', [
+            'school' => $school
+        ]);
     }
 
 

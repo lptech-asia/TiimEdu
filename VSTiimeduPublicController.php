@@ -57,6 +57,11 @@ class VSTiimeduPublicController extends VSControllerPublic
     {
         if($this->user == false)  
         {
+            if(VSRequest::vs(2) == 'checkin' && VSRequest::get('school'))
+            {
+                $returnUrl = BASE_URL . 'tiimedu/student/checkin?school='. VSRequest::get('school');
+            }
+            VSSession::set('login_return', $returnUrl ?? VSRequest::referrer());
             $this->setErrors('Bạn phải đăng nhập để thực hiện chức năng yêu cầu');
             VSRedirect::to('user/login');
         }
