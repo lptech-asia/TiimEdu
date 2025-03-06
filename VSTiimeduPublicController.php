@@ -48,7 +48,7 @@ class VSTiimeduPublicController extends VSControllerPublic
         $page = VSRequest::vs(1);
         $role = $this->user->role->getType();
         $allow =  $this->user->role::TYPE[$role];
-        if($page != $allow)
+        if($page != $allow && $page != 'index')
         {
            $this->error404();
         }
@@ -57,6 +57,11 @@ class VSTiimeduPublicController extends VSControllerPublic
     {
         if($this->user == false)  
         {
+            if(VSRequest::vs(2) == 'checkin' && VSRequest::get('school'))
+            {
+                $returnUrl = BASE_URL . 'tiimedu/student/checkin?school='. VSRequest::get('school');
+            }
+            VSSession::set('login_return', $returnUrl ?? VSRequest::referrer());
             $this->setErrors('Bạn phải đăng nhập để thực hiện chức năng yêu cầu');
             VSRedirect::to('user/login');
         }

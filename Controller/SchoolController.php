@@ -22,15 +22,26 @@ class SchoolController extends VSControllerPublic
         parent::__construct();
         $this->model = VSModel::getInstance()->load('Tiimedu');
         $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
+        $this->currentUser = $this->modelSchool->getLoggined();
+        $this->university = $this->modelSchool->where('user_id', $this->currentUser->getId())->getOne();
+        // if university was not assigned
+        if(!$this->university)
+        {
+            $this->pending();
+            die;
+        }
         $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
         $this->modelSchool->addModel('modelProgram', $this->modelProgram);
-        $this->currentUser = $this->modelSchool->getLoggined();
+        $this->modelUser = VSModel::getInstance()->load('User');
 
-        $this->university = $this->modelSchool->where('user_id', $this->currentUser->getId())->getOne();
-        if(!$this->university) VSRedirect::to('school/pending');
+        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/')->addModel('modelUser', $this->modelUser);
+        $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
+        $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
+        $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
+        $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
 
     }
 
@@ -41,11 +52,10 @@ class SchoolController extends VSControllerPublic
 
     public function index()
     {
-        $university = $this->university;
-        $livingOption = $this->modelLiving->where('school_id', $university->getId())->getAll();
-        $programs = $this->modelProgram->where('school_id', $university->getId())->getPagination();
+        $livingOption = $this->modelLiving->where('school_id', $this->university->getId())->getAll();
+        $programs = $this->modelProgram->where('school_id', $this->university->getId())->getPagination();
         $this->view->render('Tiimedu/School/index',[
-            'university' => $university,
+            'university' => $this->university,
             'livingOption' => $livingOption,
             'programs' => $programs,
             'paging' => $this->modelProgram->getPagingElements()
@@ -70,7 +80,44 @@ class SchoolController extends VSControllerPublic
 
     public function candidateVisit()
     {
-        $this->view->render('Tiimedu/School/candidate.visit');
+
+        $totalVisitor               = $this->modelEvent->where('school_id', $this->university->getId())->countItem();
+        $totalVisitorViewProfile    = $this->modelEvent->where('school_id', $this->university->getId())->where('view',1)->countItem();
+        $candidates                 = $this->modelEvent->where('school_id', $this->university->getId())->getPagination();
+        $checkinUrl                 = BASE_URL . 'tiimedu/student/checkin/?school=' . base64_encode($this->university->getSku());
+        $qrcodeUrl                  = "https://quickchart.io/qr?text={$checkinUrl}&margin=1&size=500";
+        $this->view->render('Tiimedu/School/candidate.visit', [
+            'totalVisitor' => $totalVisitor,
+            'totalVisitorViewProfile' => $totalVisitorViewProfile,
+            'candidates' => $candidates,
+            'checkinUrl' => $checkinUrl,
+            'qrcodeUrl' => $qrcodeUrl,
+            'paging' => $this->modelEvent->getPagingElements()
+        ]);
+    }
+    public function studentProfile()
+    {
+        $userId = $this->request->vs(3);
+        $candidate                 = $this->modelEvent->where('school_id', $this->university->getId())->where('user_id', $userId)->getOne();
+        $student = $this->modelStudent->where('user_id', $userId)->getOne();
+        if(!$candidate || !$student) {
+            $this->setErrors($this->lang->t('tiimedu_view_profile_not_allow_notice','You are not allowed to view this student profile because the student may not be enrolled in your school\'s program'));
+            VSRedirect::to(VSRequest::referrer());
+        }
+        // update status view
+        if($candidate->getView() == 0)
+        {
+            $this->modelEvent->edit($candidate->getId(), [
+                'view' => 1,
+                'viewed_by' => $this->currentUser->getId()
+            ]);
+        }
+        
+        $vars = [
+            'student' => $student,
+            'documentTypes' => $this->modelDocumentType->where('status',1)->getAll()
+        ];
+        $this->view->render('Tiimedu/School/student.profile', $vars);
     }
     
     public function postScholarships()
