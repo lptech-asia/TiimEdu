@@ -49,10 +49,10 @@ class StudentController extends VSControllerPublic
         $encode = $this->request->get('school') ?? null;
         $sku = base64_decode($encode);
         $school = $this->modelSchool->where('sku', $sku)->getOne();
-        $allowChecked = $this->modelEvent->where('user_id', $this->user->getId())->where('school_id', $school->getId())->countItem();
+        $allowChecked = $this->modelEvent->where('user_id', $this->user->getId())->where('school_id', $school->getId())->getOne();
         $this->view->render('Tiimedu/Student/checkin', [
             'school' => $school,
-            'checked' => $allowChecked == 0 ? true : false
+            'checked' => $allowChecked
         ]);
     }
 
