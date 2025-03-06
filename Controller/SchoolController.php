@@ -66,7 +66,6 @@ class SchoolController extends VSControllerPublic
     {
         $applicantsPending      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
         $applicantsPendingTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->countItem();
-        
         $programs               = $this->modelProgram->where('school_id', $this->university->getId())->limit(VSSetting::s('tiimedu_programs_limit', 6))->getPagination();
         $programsTotal          = $this->modelProgram->where('school_id', $this->university->getId())->countItem();
         $this->view->render('Tiimedu/School/admission',[

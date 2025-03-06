@@ -198,6 +198,7 @@ trait CommonModel
     protected function __parseWhere()
     {
         $sql = '';
+        if(empty($this->where)) return false;
         foreach($this->where as $key => $value)
         {
             $sql .= $key . ' = ' . $this->doQuote($value);
