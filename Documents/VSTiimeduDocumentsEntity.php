@@ -9,6 +9,7 @@
 class VSTiimeduDocumentsEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelDocumentType = null;
     public static function getInstance()
     {
         if (null === self::$__instance) {

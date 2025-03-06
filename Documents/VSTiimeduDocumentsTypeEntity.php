@@ -9,6 +9,7 @@
 class VSTiimeduDocumentsTypeEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelDocument = null;
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -25,8 +26,13 @@ class VSTiimeduDocumentsTypeEntity extends VSEntity
 
     public function getDocuments()
     {
-        $user = $this->modelDocument->getLoggined();
-        $documents = $this->modelDocument->where('type_id', $this->getId())->where('user_id', $user->getId())->getAll();
-        return $documents ?? [];
+        $documents = [];
+        if($this->modelDocument)
+        {
+            $user = $this->modelDocument->getLoggined();
+            $documents = $this->modelDocument->where('type_id', $this->getId())->where('user_id', $user->getId())->getAll();
+        }
+        
+        return $documents;
     }
 }

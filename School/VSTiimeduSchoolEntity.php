@@ -9,6 +9,9 @@
 class VSTiimeduSchoolEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelCountry = null;
+    public $modelUser = null;
+    public $modelProgram = null;
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -24,8 +27,13 @@ class VSTiimeduSchoolEntity extends VSEntity
 
     public function countProgram()
     {
-        $count = $this->modelProgram->where('school_id',$this->getId())->countItem();
-        return $count;
+        if(!$this->modelProgram)
+        {
+            $count = $this->modelProgram->where('school_id',$this->getId())->countItem();
+            return $count;
+        }
+        return 0;
+        
     }
 
     public function getUser()

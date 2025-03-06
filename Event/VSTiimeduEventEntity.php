@@ -9,6 +9,7 @@
 class VSTiimeduEventEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelMasterUser = null;
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -25,9 +26,9 @@ class VSTiimeduEventEntity extends VSEntity
 
     public function getUser()
     {
-        if($this->modelUser)
+        if($this->modelMasterUser)
         {
-            $user = $this->modelUser->getItem($this->getUserId());
+            $user = $this->modelMasterUser->getItem($this->getUserId());
             return $user;
         }
         return false;

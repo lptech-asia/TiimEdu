@@ -9,6 +9,9 @@
 class VSTiimeduConversationsEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelUser = null;
+    public $modelSchool = null;
+
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -18,7 +21,9 @@ class VSTiimeduConversationsEntity extends VSEntity
         return self::$__instance;
     }
     
-    public function __construct() {}
+    public function __construct() {
+        parent::__construct();
+    }
 
     public function getSchool()
     {
