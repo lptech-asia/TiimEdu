@@ -54,11 +54,14 @@ class SchoolController extends VSControllerPublic
     {
         $livingOption = $this->modelLiving->where('school_id', $this->university->getId())->getAll();
         $programs = $this->modelProgram->where('school_id', $this->university->getId())->getPagination();
+        $applicantsPending      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
+
         $this->view->render('Tiimedu/School/index',[
             'university' => $this->university,
             'livingOption' => $livingOption,
             'programs' => $programs,
-            'paging' => $this->modelProgram->getPagingElements()
+            'paging' => $this->modelProgram->getPagingElements(),
+            'applicantsPending' => $applicantsPending
         ]);
     }
 
@@ -137,15 +140,13 @@ class SchoolController extends VSControllerPublic
         $result = ['status' => true, 'message' => ''];
         try {
             $scholarships = $this->modelScholarships->where('program_id', $id)->getAll();
-
-            foreach($scholarships as $scholarship) {
-                $result['data'][] = [
-                    'id' => $scholarship->getId(),
-                    'name' => $scholarship->getName(),
-                    'description' => $scholarship->getDescription()
-                ];
-            }
-
+            $program = $this->modelProgram->getItem($id);
+            $university = $this->modelSchool->getItem($program->getSchoolId());
+            $result['html'] = $this->view->render('Tiimedu/partials/admission.ajax', [
+                'scholarships' => $scholarships,
+                'university' => $university,
+                'program' => $program
+            ], false);
         }
         catch(VSException $e) {
             $result['status'] = false;
