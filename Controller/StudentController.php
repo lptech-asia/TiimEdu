@@ -35,6 +35,7 @@ class StudentController extends VSControllerPublic
         $this->modelSchool->addModel('modelProgram', $this->modelProgram)->addModel('modelCountry', $this->modelCountry);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
         $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelSchool', $this->modelSchool);
+        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/');
     }
 
     public function index()
@@ -48,9 +49,30 @@ class StudentController extends VSControllerPublic
         $encode = $this->request->get('school') ?? null;
         $sku = base64_decode($encode);
         $school = $this->modelSchool->where('sku', $sku)->getOne();
+        $allowChecked = $this->modelEvent->where('user_id', $this->user->getId())->where('school_id', $school->getId())->countItem();
         $this->view->render('Tiimedu/Student/checkin', [
-            'school' => $school
+            'school' => $school,
+            'checked' => $allowChecked == 0 ? true : false
         ]);
+    }
+
+    public function postCheckin()
+    {
+        try {
+            $data = $this->request->post();
+            $data['user_id'] = $this->user->getId();
+            $exist = $this->modelEvent->where('user_id', $data['user_id'])->where('school_id', $data['school_id'])->countItem();
+            if($exist > 0)
+            {
+                $this->setErrors($this->lang->t('tiimedu_student_checkin_error', 'Bạn đã checkin trường này rồi.'));
+            } else {
+                $this->modelEvent->add($data);
+                $this->setSuccess($this->lang->t('tiimedu_student_checkin_success', 'Checkin thành công.'));
+            }
+        } catch (VSException $e) {
+            $this->setErrors($e->message());
+        }
+        VSRedirect::to(VSRequest::referrer());
     }
 
 
