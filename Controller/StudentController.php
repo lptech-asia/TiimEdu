@@ -301,11 +301,35 @@ class StudentController extends VSControllerPublic
         $vars = [];
         $vars['student'] = $this->user->student;
         $vars['program'] = $this->modelProgram->getItem($this->request->vs(3));
-        $school = $this->modelSchool->getItem($vars['program']->getSchoolId());
-        $vars['country'] = $this->modelCountry->where('id', $school->getCountryId())->getOne();
+        $vars['school'] = $this->modelSchool->getItem($vars['program']->getSchoolId());
         $vars['scholarships'] = $this->modelScholarships->where('program_id', $this->request->vs(3))->getAll();
         $vars['documentTypes'] = $this->modelDocumentType->where('status',1)->getAll();
         $this->view->render('Tiimedu/Student/apply', $vars);
+    }
+
+    public function postApply()
+    {
+        $data = $this->request->post();
+        $data['status'] = 0;
+        
+        $data = $this->validate->run($data, [
+            'program_id' => 'required',
+            'school_id' => 'required',
+            'user_id' => 'required',
+        ]);
+        if ($data === false) {
+            $errors = $this->validate->getErrors($this);
+        }
+
+        if (empty($errors)) 
+        {
+            $data['status'] = 0;
+            $this->modelApplication->add($data);
+            $this->setMessage('success');
+        } else {
+            $this->setErrors($errors);
+        }
+        VSRedirect::to('tiimedu/student/applicants');
     }
 
     public function viewed()
@@ -319,11 +343,11 @@ class StudentController extends VSControllerPublic
         $user = $this->user;
         $status = $this->request->vs(3) ?? 0;
         $vars['applicants'] = $this->modelApplication->where('user_id', $user->getId())->where('status', $status)->limit(12)->getPagination();
-        $vars['submited'] = $this->modelApplication->where('status', 0)->countItem();
-        $vars['viewed'] = $this->modelApplication->where('status', 1)->countItem();
-        $vars['agreed'] = $this->modelApplication->where('status', 2)->countItem();
-        $vars['refused'] = $this->modelApplication->where('status', 3)->countItem();
-        $vars['paging'] = $this->modelApplication->getPagingElements();
+        $vars['submited'] = $this->modelApplication->where('user_id', $user->getId())->where('status', 0)->countItem();
+        $vars['viewed'] = $this->modelApplication->where('user_id', $user->getId())->where('status', 1)->countItem();
+        $vars['agreed'] = $this->modelApplication->where('user_id', $user->getId())->where('status', 2)->countItem();
+        $vars['refused'] = $this->modelApplication->where('user_id', $user->getId())->where('status', 3)->countItem();
+        $vars['paging'] = $this->modelApplication->where('user_id', $user->getId())->getPagingElements();
         $this->view->render('Tiimedu/Student/applicants', $vars);
     }
 
