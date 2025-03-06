@@ -88,9 +88,41 @@ class SchoolController extends VSControllerPublic
 
     public function candidateDetail()
     {
-        $this->view->render('Tiimedu/School/candidate.detail');
+        $applicantId = $this->request->vs(3);
+        $applicant = $this->modelApplication->getItem($applicantId);
+        $student = $this->modelStudent->where('user_id',$applicant->getUserId())->getOne();
+        $user = $this->modelMasterUser->getItem($student->getUserId());
+        $documents = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
+        $scholarship = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+        $this->view->render('Tiimedu/School/candidate.detail',  [
+            'applicant' => $applicant,
+            'user' => $user,
+            'student' => $student,
+            'documents' => $documents,
+            'scholarship' => $scholarship,
+        ]);
     }
 
+    public function postStatus()
+    {
+        $data = $this->request->post();
+        $edit = $this->request->post('id') ?? false;
+        if ($data === false) {
+            $errors = $this->validate->getErrors($this);
+        }
+        if (empty($errors)) 
+        {
+            if($edit)
+            {
+                $this->modelApplication->edit($edit, $data);
+                $this->setMessage('Cập nhật thành công');
+            }
+        } else {
+            $this->setErrors($errors);
+        }
+        
+        VSRedirect::to('tiimedu/school/candidate');
+    }
 
     public function candidateVisit()
     {
