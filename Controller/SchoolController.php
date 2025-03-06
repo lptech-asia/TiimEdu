@@ -35,14 +35,14 @@ class SchoolController extends VSControllerPublic
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
         $this->modelSchool->addModel('modelProgram', $this->modelProgram);
-        $this->modelUser = VSModel::getInstance()->load('User');
-
-        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/')->addModel('modelUser', $this->modelUser);
+        $this->modelMasterUser = VSModel::getInstance()->load('User');
+        
+        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/')->addModel('modelUser', $this->modelMasterUser);
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
-
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelMasterUser', $this->modelMasterUser);
     }
 
     public function pending()
@@ -64,7 +64,19 @@ class SchoolController extends VSControllerPublic
 
     public function admission()
     {
-        $this->view->render('Tiimedu/School/admission');
+        $applicantsPending      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
+        $applicantsPendingTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->countItem();
+        
+        $programs               = $this->modelProgram->where('school_id', $this->university->getId())->limit(VSSetting::s('tiimedu_programs_limit', 6))->getPagination();
+        $programsTotal          = $this->modelProgram->where('school_id', $this->university->getId())->countItem();
+        $this->view->render('Tiimedu/School/admission',[
+            'applicantsPending'      => $applicantsPending,
+            'applicantsPendingTotal' => $applicantsPendingTotal,
+            'applicantsTotal'        => $this->modelApplication->countItem(),
+            'programs'               => $programs,
+            'programsTotal'          => $programsTotal,
+            'paging'                 => $this->modelProgram->getPagingElements()
+        ]);
     }
 
     public function candidate()

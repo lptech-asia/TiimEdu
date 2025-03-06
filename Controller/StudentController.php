@@ -298,7 +298,14 @@ class StudentController extends VSControllerPublic
     }
     public function apply()
     {
-        $this->view->render('Tiimedu/Student/apply');
+        $vars = [];
+        $vars['student'] = $this->user->student;
+        $vars['program'] = $this->modelProgram->getItem($this->request->vs(3));
+        $school = $this->modelSchool->getItem($vars['program']->getSchoolId());
+        $vars['country'] = $this->modelCountry->where('id', $school->getCountryId())->getOne();
+        $vars['scholarships'] = $this->modelScholarships->where('program_id', $this->request->vs(3))->getAll();
+        $vars['documentTypes'] = $this->modelDocumentType->where('status',1)->getAll();
+        $this->view->render('Tiimedu/Student/apply', $vars);
     }
 
     public function viewed()
