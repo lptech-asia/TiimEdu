@@ -37,7 +37,7 @@ class SchoolController extends VSControllerPublic
         $this->modelSchool->addModel('modelProgram', $this->modelProgram);
         $this->modelMasterUser = VSModel::getInstance()->load('User');
         
-        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/')->addModel('modelUser', $this->modelMasterUser);
+        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/')->addModel('modelMasterUser', $this->modelMasterUser);
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
