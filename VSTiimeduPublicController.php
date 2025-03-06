@@ -48,7 +48,7 @@ class VSTiimeduPublicController extends VSControllerPublic
         $page = VSRequest::vs(1);
         $role = $this->user->role->getType();
         $allow =  $this->user->role::TYPE[$role];
-        if($page != $allow)
+        if($page != $allow && $page != 'index')
         {
            $this->error404();
         }

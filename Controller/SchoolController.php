@@ -30,7 +30,12 @@ class SchoolController extends VSControllerPublic
         $this->currentUser = $this->modelSchool->getLoggined();
 
         $this->university = $this->modelSchool->where('user_id', $this->currentUser->getId())->getOne();
-        if(!$this->university) VSRedirect::to('school/pending');
+        // if university was not assigned
+        if(!$this->university)
+        {
+            $this->pending();
+            die;
+        }
 
     }
 
