@@ -231,15 +231,16 @@ class SchoolController extends VSControllerPublic
             $applicantId = $this->request->vs(3);
             $applicant = $this->modelApplication->getItem($applicantId);
             if($applicant->getSchool()->getUserId() != $this->currentUser->getId()) {
-            $this->error404();
+                $this->error404();
             }
             $user = $this->modelMasterUser->getItem($applicant->getUserId());
             $conversations = $this->modelConversations->where('application_id', $applicant->getId())->getPagination();
             $this->view->render('Tiimedu/School/conversation',  [
-            'applicant' => $applicant,
-            'user' => $user,
-            'allowChat'  => true,
-            'conversations' => $conversations
+                'applicant' => $applicant,
+                'user' => $user,
+                'allowChat'  => true,
+                'conversations' => $conversations,
+                'paging' => $this->modelConversations->getPagingElements()
             ]);
         } catch (VSException $e) {
             $this->setErrors($e->getMessage());

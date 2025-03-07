@@ -36,10 +36,8 @@ class StudentController extends VSControllerPublic
             ->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument
             ->addModel('modelDocumentType', $this->modelDocumentType);
-        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
-            ->addModel('modelSchool', $this->modelSchool);
-        $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms')
-            ->addModel('modelApplication', $this->modelApplication);
+        
+        $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')
@@ -49,6 +47,12 @@ class StudentController extends VSControllerPublic
             ->addModel('modelCountry', $this->modelCountry);
         $this->modelViewed = VSModel::getInstance()->load($this->modelStudent, 'StudentViewed')
             ->addModel('modelSchool', $this->modelSchool)->addModel('modelProgram', $this->modelProgram);
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
+            ->addModel('modelMasterUser', $this->modelMasterUser)
+            ->addModel('modelScholarship', $this->modelScholarships)
+            ->addModel('modelProgram', $this->modelProgram)
+            ->addModel('modelSchool', $this->modelSchool);
+        $this->modelProgram->addModel('modelApplication', $this->modelApplication);
     }
 
     public function index()
@@ -430,4 +434,27 @@ class StudentController extends VSControllerPublic
             $this->error404();
         }
     } 
+
+    public function conversation()
+    {
+        try {
+            $applicantId = $this->request->vs(3);
+            $applicant = $this->modelApplication->getItem($applicantId);
+            if($applicant->getUserId() != $this->user->getId()) {
+                $this->error404();
+            }
+            $user = $this->modelMasterUser->getItem($applicant->getUserId());
+            $conversations = $this->modelConversations->where('application_id', $applicant->getId())->getPagination();
+            $this->view->render('Tiimedu/School/conversation',  [
+                'applicant' => $applicant,
+                'user' => $user,
+                'allowChat'  => true,
+                'conversations' => $conversations,
+                'paging' => $this->modelConversations->getPagingElements()
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
+    }
 }
