@@ -124,7 +124,7 @@ class SchoolController extends VSControllerPublic
         }
         $student = $this->modelStudent->where('user_id',$applicant->getUserId())->getOne();
         $user = $this->modelMasterUser->getItem($student->getUserId());
-        $documents = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
+        $documentTypes = $this->modelDocumentType->where('status',1)->getAll();
         if($applicant->getScholarshipId())
         {
             $scholarship = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
@@ -134,7 +134,7 @@ class SchoolController extends VSControllerPublic
             'applicant' => $applicant,
             'user' => $user,
             'student' => $student,
-            'documents' => $documents,
+            'documentTypes' => $documentTypes,
             'scholarship' => $scholarship ?? [],
             'allowChat'  => true,
             'conversations' => $conversations

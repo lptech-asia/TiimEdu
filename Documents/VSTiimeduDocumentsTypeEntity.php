@@ -35,4 +35,15 @@ class VSTiimeduDocumentsTypeEntity extends VSEntity
         
         return $documents;
     }
+
+    public function getDocumentsStudentBySchool($userId)
+    {
+        $documents = [];
+        if($this->modelDocument)
+        {
+            $documents = $this->modelDocument->where('type_id', $this->getId())->where('user_id', $userId)->getAll();
+        }
+        
+        return $documents;
+    }
 }
