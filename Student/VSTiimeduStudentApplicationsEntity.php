@@ -23,7 +23,7 @@ class VSTiimeduStudentApplicationsEntity extends VSEntity
 
     public function getSchool()
     {
-        if($this->modelSchool)
+        if($this->modelSchool && $this->getSchoolId())
         {
             $school = $this->modelSchool->getItem($this->getSchoolId());
             return $school;
@@ -33,7 +33,7 @@ class VSTiimeduStudentApplicationsEntity extends VSEntity
 
     public function getProgram()
     {
-        if($this->modelProgram)
+        if($this->modelProgram && $this->getProgramId())
         {
             $program = $this->modelProgram->getItem($this->getProgramId());
             return $program;
@@ -45,7 +45,7 @@ class VSTiimeduStudentApplicationsEntity extends VSEntity
     // getScholarship
     public function getScholarship()
     {
-        if($this->modelScholarship)
+        if($this->modelScholarship && $this->getScholarshipId())
         {
             $scholarship = $this->modelScholarship->getItem($this->getScholarshipId());
             return $scholarship;

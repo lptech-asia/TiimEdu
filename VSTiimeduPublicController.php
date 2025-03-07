@@ -145,6 +145,11 @@ class VSTiimeduPublicController extends VSControllerPublic
            $this->error404();
         }
         $data = $this->request->post();
+        if(empty($data['message']))
+        {
+            $this->setErrors('Vui lòng nhập nội dung tin nhắn');
+            VSRedirect::to(VSRequest::referrer());
+        }
         try {
             $data['user_id'] = $this->user->getId();
             $data['author_name'] = $this->user->getName();

@@ -42,7 +42,10 @@ class SchoolController extends VSControllerPublic
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
-        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelMasterUser', $this->modelMasterUser);
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
+            ->addModel('modelMasterUser', $this->modelMasterUser)
+            ->addModel('modelSchool', $this->modelSchool)
+            ->addModel('modelScholarship', $this->modelScholarships);
 
         $this->modelConversations = VSModel::getInstance()->load($this->model, 'Conversations/')
             ->addModel('modelUser', $this->modelMasterUser);
@@ -93,17 +96,24 @@ class SchoolController extends VSControllerPublic
     {
         $applicantId = $this->request->vs(3);
         $applicant = $this->modelApplication->getItem($applicantId);
+        if($applicant->getSchool()->getUserId() != $this->currentUser->getId())
+        {
+            $this->error404();
+        }
         $student = $this->modelStudent->where('user_id',$applicant->getUserId())->getOne();
         $user = $this->modelMasterUser->getItem($student->getUserId());
         $documents = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
-        $scholarship = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+        if($applicant->getScholarshipId())
+        {
+            $scholarship = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+        }
         $conversations = $this->modelConversations->where('application_id', $applicant->getId())->getAll();
         $this->view->render('Tiimedu/School/candidate.detail',  [
             'applicant' => $applicant,
             'user' => $user,
             'student' => $student,
             'documents' => $documents,
-            'scholarship' => $scholarship,
+            'scholarship' => $scholarship ?? [],
             'allowChat'  => true,
             'conversations' => $conversations
         ]);
@@ -190,5 +200,28 @@ class SchoolController extends VSControllerPublic
             VSDebug::log($e->message());
         }
         VSJson::response($result);
+    }
+
+
+    public function conversation()
+    {
+        try {
+            $applicantId = $this->request->vs(3);
+            $applicant = $this->modelApplication->getItem($applicantId);
+            if($applicant->getSchool()->getUserId() != $this->currentUser->getId()) {
+            $this->error404();
+            }
+            $user = $this->modelMasterUser->getItem($applicant->getUserId());
+            $conversations = $this->modelConversations->where('application_id', $applicant->getId())->getPagination();
+            $this->view->render('Tiimedu/School/conversation',  [
+            'applicant' => $applicant,
+            'user' => $user,
+            'allowChat'  => true,
+            'conversations' => $conversations
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->getMessage());
+            $this->error404();
+        }
     }
 }
