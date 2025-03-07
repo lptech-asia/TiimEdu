@@ -27,12 +27,17 @@ class VSTiimeduPublicController extends VSControllerPublic
         $this->modelSchool = VSModel::getInstance()->load($this->modelTiimedu, 'School/');
 
         $this->modelUser = VSModel::getInstance()->load('User');
+        
         $this->user = $this->modelUser->getLoggedIn();
         if($this->user)
         {
             $this->user->role = $this->modelTiimeduUser->getByUserId($this->user->getId());
             $this->user->student = $this->modelStudent->getByUserId($this->user->getId());
         }
+
+        $this->modelConversations = VSModel::getInstance()->load($this->modelTiimedu, 'Conversations/')
+            ->addModel('modelUser', $this->modelUser);
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications');
     }
 
     public function index()
@@ -130,6 +135,31 @@ class VSTiimeduPublicController extends VSControllerPublic
         $role = VSRequest::post('type');
         VSSession::set('role', $role);
         VSJson::response(['status' => 'success', 'message' => 'Chọn vai trò thành công']);
+    }
+
+
+    public function postConversation()
+    {
+        if($this->user == false)  
+        {
+           $this->error404();
+        }
+        $data = $this->request->post();
+        try {
+            $data['user_id'] = $this->user->getId();
+            $data['author_name'] = $this->user->getName();
+            $application = $this->modelApplication->getItem($data['application_id']);
+            $data['school_id'] = $application->getSchoolId();
+            $attachment = $this->request->files('attachment');
+            if($attachment)
+            {
+                $data['attachment']     = $this->modelApplication->processFileUpload($attachment, VSSetting::s('tiimedu_conversation_attachment_folder', '244'));
+            }
+            $this->modelConversations->add($data);
+        } catch (Exception $e) {
+            $this->setErrors('An error occurred while processing the conversation: ' . $e->getMessage());
+        }
+        VSRedirect::to(VSRequest::referrer());
     }
 
 }

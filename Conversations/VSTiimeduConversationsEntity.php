@@ -44,4 +44,14 @@ class VSTiimeduConversationsEntity extends VSEntity
         }
         return false;
     }
+
+    public function getAttachmentName()
+    {
+        if($this->getAttachment())
+        {
+            $path = parse_url($this->getAttachment(), PHP_URL_PATH);
+            $fileName = basename($path);
+            return $fileName;
+        }
+    }
 }

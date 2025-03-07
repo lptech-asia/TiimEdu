@@ -29,7 +29,9 @@ class StudentController extends VSControllerPublic
         $this->modelGemini = VSModel::getInstance()->load($this->model, 'Gemini/');
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
         $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/');
-
+        $this->modelConversations = VSModel::getInstance()->load($this->model, 'Conversations/')
+            ->addModel('modelUser', $this->modelMasterUser);
+        ####### LOAD MASTER MODEL ABOVE #######
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')
             ->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument
@@ -45,7 +47,6 @@ class StudentController extends VSControllerPublic
         $this->modelSchool
             ->addModel('modelProgram', $this->modelProgram)
             ->addModel('modelCountry', $this->modelCountry);
-        
         $this->modelViewed = VSModel::getInstance()->load($this->modelStudent, 'StudentViewed')
             ->addModel('modelSchool', $this->modelSchool)->addModel('modelProgram', $this->modelProgram);
     }
@@ -328,6 +329,7 @@ class StudentController extends VSControllerPublic
             $vars['documentTypes'] = $this->modelDocumentType->where('status',1)->getAll();
             // curent application
             $vars['applied'] = $this->modelApplication->where('user_id', $this->user->getId())->where('program_id', $program->getId())->getOne();
+            $vars['allowChat'] = false;
             $this->view->render('Tiimedu/Student/apply', $vars);
         } catch (VSException $e) {
             $this->setErrors($e->message());
@@ -420,12 +422,13 @@ class StudentController extends VSControllerPublic
             {
                 $vars['schoolarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
             }
+            $vars['conversations'] = $this->modelConversations->where('application_id', $applicant->getId())->getAll();
+            $vars['allowChat'] = true;
+            // ddd($vars['conversations']);
             $this->view->render('Tiimedu/Student/applicants.detail', $vars);
         } catch (VSException $e) {
             $this->setErrors($e->message());
             $this->error404();
         }
-    }
-
-    
+    } 
 }
