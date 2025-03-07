@@ -94,10 +94,10 @@ class SchoolController extends VSControllerPublic
         $status = $this->request->get('status') ?? null;
         if(is_numeric($status))
         {
-            $candidates      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', $status)->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
+            $candidates      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', $status)->limit(VSSetting::s('tiimedu_candidates_limit', 20))->getPagination();
             $candidatesTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', $status)->countItem();
         } else {
-            $candidates      = $this->modelApplication->where('school_id', $this->university->getId())->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
+            $candidates      = $this->modelApplication->where('school_id', $this->university->getId())->limit(VSSetting::s('tiimedu_candidates_limit', 20))->getPagination();
             $candidatesTotal = $this->modelApplication->where('school_id', $this->university->getId())->countItem();
         }
         $candidatesNewTotal     = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->countItem();
@@ -105,12 +105,13 @@ class SchoolController extends VSControllerPublic
         $candidatesAgreedTotal  = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 2)->countItem();
         $candidatesRefusedTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 3)->countItem();
         $this->view->render('Tiimedu/School/candidate', [
-            'candidates'             => $candidates,
-            'candidatesTotal'        => $candidatesTotal,
             'candidatesNewTotal'     => $candidatesNewTotal,
             'candidatesViewedTotal'  => $candidatesViewedTotal,
             'candidatesAgreedTotal'  => $candidatesAgreedTotal,
             'candidatesRefusedTotal' => $candidatesRefusedTotal,
+            'candidates'             => $candidates,
+            'candidatesTotal'        => $candidatesTotal,
+            'paging'                 => $this->modelApplication->getPagingElements()
         ]);
     }
 
