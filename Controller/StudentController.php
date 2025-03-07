@@ -374,14 +374,23 @@ class StudentController extends VSControllerPublic
 
     public function applicantDetail()
     {
-        $vars = [];
-        $applicantId = $this->request->vs(3);
-        $applicant = $this->modelApplication->getItem($applicantId);
-        $vars['applicant'] = $applicant;
-        $vars['student'] = $this->user->student;
-        $vars['documents'] = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
-        $vars['schoolarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
-        $this->view->render('Tiimedu/Student/applicants.detail', $vars);
+        try {
+            $vars = [
+                'student' => $this->user->student
+            ];
+            $applicantId = $this->request->vs(3);
+            $applicant = $this->modelApplication->getItem($applicantId);
+            $vars['applicant'] = $applicant;
+            $vars['documents'] = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
+            if($applicant->getScholarshipId()) 
+            {
+                $vars['schoolarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+            }
+            $this->view->render('Tiimedu/Student/applicants.detail', $vars);
+        } catch (VSException $e) {
+            $this->setErrors($e->message());
+            $this->error404();
+        }
     }
 
     
