@@ -42,7 +42,7 @@ class SchoolController extends VSControllerPublic
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
-        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelMasterUser', $this->modelMasterUser);
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelMasterUser', $this->modelMasterUser)->addModel('modelProgram', $this->modelProgram);
 
         $this->modelConversations = VSModel::getInstance()->load($this->model, 'Conversations/')
             ->addModel('modelUser', $this->modelMasterUser);
@@ -72,12 +72,13 @@ class SchoolController extends VSControllerPublic
     {
         $applicantsPending      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
         $applicantsPendingTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->countItem();
+        $applicantsTotal        = $this->modelApplication->where('school_id', $this->university->getId())->countItem();
         $programs               = $this->modelProgram->where('school_id', $this->university->getId())->limit(VSSetting::s('tiimedu_programs_limit', 6))->getPagination();
         $programsTotal          = $this->modelProgram->where('school_id', $this->university->getId())->countItem();
         $this->view->render('Tiimedu/School/admission',[
             'applicantsPending'      => $applicantsPending,
             'applicantsPendingTotal' => $applicantsPendingTotal,
-            'applicantsTotal'        => $this->modelApplication->countItem(),
+            'applicantsTotal'        => $applicantsTotal,
             'programs'               => $programs,
             'programsTotal'          => $programsTotal,
             'paging'                 => $this->modelProgram->getPagingElements()
@@ -86,7 +87,27 @@ class SchoolController extends VSControllerPublic
 
     public function candidate()
     {
-        $this->view->render('Tiimedu/School/candidate');
+        $status = $this->request->get('status') ?? null;
+        if(is_numeric($status))
+        {
+            $candidates      = $this->modelApplication->where('school_id', $this->university->getId())->where('status', $status)->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
+            $candidatesTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', $status)->countItem();
+        } else {
+            $candidates      = $this->modelApplication->where('school_id', $this->university->getId())->limit(VSSetting::s('tiimedu_applicants_pending_limit', 6))->getAll();
+            $candidatesTotal = $this->modelApplication->where('school_id', $this->university->getId())->countItem();
+        }
+        $candidatesNewTotal     = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 0)->countItem();
+        $candidatesViewedTotal  = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 1)->countItem();
+        $candidatesAgreedTotal  = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 2)->countItem();
+        $candidatesRefusedTotal = $this->modelApplication->where('school_id', $this->university->getId())->where('status', 3)->countItem();
+        $this->view->render('Tiimedu/School/candidate', [
+            'candidates'             => $candidates,
+            'candidatesTotal'        => $candidatesTotal,
+            'candidatesNewTotal'     => $candidatesNewTotal,
+            'candidatesViewedTotal'  => $candidatesViewedTotal,
+            'candidatesAgreedTotal'  => $candidatesAgreedTotal,
+            'candidatesRefusedTotal' => $candidatesRefusedTotal,
+        ]);
     }
 
     public function candidateDetail()
