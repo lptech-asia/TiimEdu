@@ -337,27 +337,49 @@ class StudentController extends VSControllerPublic
 
     public function postApply()
     {
-        $data = $this->request->post();
-        $data['status'] = 0;
-        
-        $data = $this->validate->run($data, [
+        $postData = $this->request->post();
+        $required = [
             'program_id' => 'required',
-            'school_id' => 'required',
-            'user_id' => 'required',
-        ]);
+        ];
+        if(isset($postData['accept_apply']))
+        {
+            $required['scholarship_id'] = 'required';
+        }
+        $data = $this->validate->run($postData, $required);
         if ($data === false) {
             $errors = $this->validate->getErrors($this);
         }
-
+        $program = $this->modelProgram->getItem($postData['program_id']);
+        if($program->isApplied())
+        {
+            $errors = $this->lang->t('tiimedu_student_apply_already_error', 'You have already applied for this program.');
+        }
+        
         if (empty($errors)) 
         {
             $data['status'] = 0;
+            $data['user_id'] = $this->modelApplication->getLoggined()->getId();
+            $data['name'] = $program->getProgramName();
+            $data['school_id'] = $program->getSchoolId();
+            // up load cover letter attach
+            $coverLetterFile = $this->request->files('cover_letter_attachment');
+            if($coverLetterFile)
+            {
+                $data['cover_letter_attachment']     = $this->model->processFileUpload($coverLetterFile, VSSetting::s('tiimedu_apply_attachment_folder', '243'));
+            }
+            $scholarshipEssayFile = $this->request->files('scholarship_essay_attachment');
+            if($scholarshipEssayFile)
+            {
+                $data['scholarship_essay_attachment']     = $this->model->processFileUpload($scholarshipEssayFile, VSSetting::s('tiimedu_apply_attachment_folder', '243'));
+            }
             $this->modelApplication->add($data);
-            $this->setMessage('success');
+            $this->setMessage('Apply Success');
+            VSRedirect::to('tiimedu/student/applicants');
         } else {
             $this->setErrors($errors);
+            VSRedirect::to(VSRequest::referrer());
         }
-        VSRedirect::to('tiimedu/student/applicants');
+        
     }
 
     public function viewed()
