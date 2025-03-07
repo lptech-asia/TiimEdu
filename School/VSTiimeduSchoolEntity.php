@@ -27,7 +27,7 @@ class VSTiimeduSchoolEntity extends VSEntity
 
     public function countProgram()
     {
-        if(!$this->modelProgram)
+        if($this->modelProgram)
         {
             $count = $this->modelProgram->where('school_id',$this->getId())->countItem();
             return $count;

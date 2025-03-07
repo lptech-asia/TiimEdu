@@ -22,20 +22,29 @@ class StudentController extends VSControllerPublic
     {
         parent::__construct();
         $this->model = VSModel::getInstance()->load('Tiimedu');
+        $this->modelMasterUser = VSModel::getInstance()->load('User');
         $this->modelUser = VSModel::getInstance()->load($this->model, 'Users/');
         $this->modelGemini = VSModel::getInstance()->load($this->model, 'Gemini/');
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
-        $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')->addModel('modelDocument', $this->modelDocument);
-        $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
+        $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')
+            ->addModel('modelDocument', $this->modelDocument);
+        $this->modelDocument
+            ->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
         $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
-        $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')->addModel('modelSchool', $this->modelSchool);
-        $this->modelSchool->addModel('modelProgram', $this->modelProgram)->addModel('modelCountry', $this->modelCountry);
+        $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')
+            ->addModel('modelSchool', $this->modelSchool);
+        $this->modelSchool
+            ->addModel('modelProgram', $this->modelProgram)
+            ->addModel('modelCountry', $this->modelCountry);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
-        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelSchool', $this->modelSchool);
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
+            ->addModel('modelSchool', $this->modelSchool);
         $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/');
+        $this->modelViewed = VSModel::getInstance()->load($this->modelStudent, 'StudentViewed')
+            ->addModel('modelSchool', $this->modelSchool)->addModel('modelProgram', $this->modelProgram);
     }
 
     public function index()
@@ -241,15 +250,22 @@ class StudentController extends VSControllerPublic
 
     public function school()
     {
-        $university = $this->modelSchool->getItem($this->request->vs(3));
-        $livingOption = $this->modelLiving->where('school_id', $university->getId())->getAll();
-        $programs = $this->modelProgram->where('school_id', $university->getId())->getPagination();
-        $this->view->render('Tiimedu/Student/school', [
-            'university' => $university,
-            'livingOption' => $livingOption,
-            'programs' => $programs,
-            'paging' => $this->modelProgram->getPagingElements()
-        ]);
+        try {
+            $university = $this->modelSchool->getItem($this->request->vs(3));
+            $livingOption = $this->modelLiving->where('school_id', $university->getId())->getAll();
+            $programs = $this->modelProgram->where('school_id', $university->getId())->getPagination();
+            // add viewed
+            $this->modelViewed->addViewed($this->user->getId(), $university->getId());
+            $this->view->render('Tiimedu/Student/school', [
+                'university' => $university,
+                'livingOption' => $livingOption,
+                'programs' => $programs,
+                'paging' => $this->modelProgram->getPagingElements()
+            ]);
+        } catch (VSException $e) {
+            $this->setErrors($e->message());
+            $this->error404();
+        }
     }
 
     public function countries()
@@ -334,7 +350,12 @@ class StudentController extends VSControllerPublic
 
     public function viewed()
     {
-        $this->view->render('Tiimedu/Student/viewed');
+        $viewedUniversity = $this->modelViewed->where('user_id', $this->user->getId())->getPagination();
+        // ddd($viewedUniversity);
+        $this->view->render('Tiimedu/Student/viewed', [
+            'viewedUniversity' => $viewedUniversity,
+            'paging' => $this->modelViewed->getPagingElements()
+        ]);
     }
 
     public function applicants()

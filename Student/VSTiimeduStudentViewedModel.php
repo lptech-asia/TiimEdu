@@ -7,6 +7,7 @@
  */
 class VSTiimeduStudentViewedModel extends VSModelBackend
 {
+    use CommonModel;
     protected $_tableName      = TABLE_PREFIX . 'tiimedu_school_viewed';
     protected $_primaryKey     = 'tiimedu_school_viewed_id';
     protected $_fieldPrefix    = 'tiimedu_school_viewed_';
@@ -23,5 +24,22 @@ class VSTiimeduStudentViewedModel extends VSModelBackend
     {
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
+    }
+
+
+    public function addViewed($user_id = null, $school_id = null)
+    {
+        $data = [
+            $this->_fieldPrefix . 'school_id' => $school_id,
+            $this->_fieldPrefix . 'user_id' => $user_id,
+        ];
+        $viewed = $this->where('school_id', $school_id)->where('user_id', $user_id)->getOne();
+        if(!$viewed)
+        {
+            $this->insert($data);
+        } else {
+            $this->edit($viewed->getId(), ['counter' =>  $viewed->getCounter() + 1]);
+        }
+        
     }
 }
