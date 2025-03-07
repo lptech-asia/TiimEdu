@@ -24,14 +24,20 @@ class StudentController extends VSControllerPublic
         $this->model = VSModel::getInstance()->load('Tiimedu');
         $this->modelMasterUser = VSModel::getInstance()->load('User');
         $this->modelUser = VSModel::getInstance()->load($this->model, 'Users/');
+        $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
+        $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
         $this->modelGemini = VSModel::getInstance()->load($this->model, 'Gemini/');
         $this->modelDocument = VSModel::getInstance()->load($this->model, 'Documents/');
+        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/');
+
         $this->modelDocumentType = VSModel::getInstance()->load($this->modelDocument, 'DocumentsType')
             ->addModel('modelDocument', $this->modelDocument);
         $this->modelDocument
             ->addModel('modelDocumentType', $this->modelDocumentType);
-        $this->modelSchool = VSModel::getInstance()->load($this->model, 'School/');
-        $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms');
+        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
+            ->addModel('modelSchool', $this->modelSchool);
+        $this->modelProgram = VSModel::getInstance()->load($this->modelSchool, 'SchoolPrograms')
+            ->addModel('modelApplication', $this->modelApplication);
         $this->modelLiving = VSModel::getInstance()->load($this->modelSchool, 'SchoolLiving');
         $this->modelScholarships = VSModel::getInstance()->load($this->modelSchool, 'SchoolScholarships');
         $this->modelCountry = VSModel::getInstance()->load($this->modelSchool, 'SchoolCountries')
@@ -39,10 +45,7 @@ class StudentController extends VSControllerPublic
         $this->modelSchool
             ->addModel('modelProgram', $this->modelProgram)
             ->addModel('modelCountry', $this->modelCountry);
-        $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
-        $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')
-            ->addModel('modelSchool', $this->modelSchool);
-        $this->modelEvent = VSModel::getInstance()->load($this->model, 'Event/');
+        
         $this->modelViewed = VSModel::getInstance()->load($this->modelStudent, 'StudentViewed')
             ->addModel('modelSchool', $this->modelSchool)->addModel('modelProgram', $this->modelProgram);
     }
@@ -314,13 +317,22 @@ class StudentController extends VSControllerPublic
     }
     public function apply()
     {
-        $vars = [];
-        $vars['student'] = $this->user->student;
-        $vars['program'] = $this->modelProgram->getItem($this->request->vs(3));
-        $vars['school'] = $this->modelSchool->getItem($vars['program']->getSchoolId());
-        $vars['scholarships'] = $this->modelScholarships->where('program_id', $this->request->vs(3))->getAll();
-        $vars['documentTypes'] = $this->modelDocumentType->where('status',1)->getAll();
-        $this->view->render('Tiimedu/Student/apply', $vars);
+        try {
+            $vars = [
+                'student' => $this->user->student
+            ];
+            $program = $this->modelProgram->getItem($this->request->vs(3));
+            $vars['school'] = $this->modelSchool->getItem($program->getSchoolId());
+            $vars['scholarships'] = $this->modelScholarships->where('program_id', $program->getId())->getAll();
+            $vars['program'] = $program;
+            $vars['documentTypes'] = $this->modelDocumentType->where('status',1)->getAll();
+            // curent application
+            $vars['applied'] = $this->modelApplication->where('user_id', $this->user->getId())->where('program_id', $program->getId())->getOne();
+            $this->view->render('Tiimedu/Student/apply', $vars);
+        } catch (VSException $e) {
+            $this->setErrors($e->message());
+            $this->error404();
+        }
     }
 
     public function postApply()

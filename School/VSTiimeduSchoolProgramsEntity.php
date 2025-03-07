@@ -9,6 +9,7 @@
 class VSTiimeduSchoolProgramsEntity extends VSEntity
 {
     private static $__instance = null;
+    public $modelApplication = null;
     public static function getInstance()
     {
         if (null === self::$__instance) {
@@ -38,5 +39,16 @@ class VSTiimeduSchoolProgramsEntity extends VSEntity
     {
         $name = "getFeeYear{$i}";
         return $this->$name();
+    }
+
+
+    public function isApplied()
+    {
+        if($this->modelApplication)
+        {
+            $isApplied = $this->modelApplication->isApplied($this->getId());
+            return $isApplied;
+        }
+        return false;
     }
 }

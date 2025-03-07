@@ -28,4 +28,11 @@ class VSTiimeduStudentApplicationsModel extends VSModelBackend
         parent::__construct();
         $this->_entity = VSEntity::getInstance()->load($this);
     }
+
+
+    public function isApplied($programId = null)
+    {
+        $countApplied = $this->where('user_id', $this->getLoggined()->getId())->where('program_id', $programId)->countItem();
+        return $countApplied > 0 ? true : false;
+    }
 }
