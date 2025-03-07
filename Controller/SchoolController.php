@@ -103,14 +103,12 @@ class SchoolController extends VSControllerPublic
         ]);
     }
 
-    public function postStatus()
+    public function postApplyStatusChange()
     {
         $data = $this->request->post();
         $edit = $this->request->post('id') ?? false;
-        if ($data === false) {
-            $errors = $this->validate->getErrors($this);
-        }
-        if (empty($errors)) 
+
+        if ($data['status'] == 2 or $data['status'] == 3) 
         {
             if($edit)
             {
@@ -118,9 +116,9 @@ class SchoolController extends VSControllerPublic
                 $this->setMessage('Cập nhật thành công');
             }
         } else {
-            $this->setErrors($errors);
+            $this->setErrors('Cập nhật thất bại');
         }
-        
+
         VSRedirect::to('tiimedu/school/candidate');
     }
 
