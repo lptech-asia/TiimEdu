@@ -424,7 +424,6 @@ class StudentController extends VSControllerPublic
             }
             $vars['conversations'] = $this->modelConversations->where('application_id', $applicant->getId())->getAll();
             $vars['allowChat'] = true;
-            // ddd($vars['conversations']);
             $this->view->render('Tiimedu/Student/applicants.detail', $vars);
         } catch (VSException $e) {
             $this->setErrors($e->message());

@@ -43,6 +43,9 @@ class SchoolController extends VSControllerPublic
         $this->modelDocument->addModel('modelDocumentType', $this->modelDocumentType);
         $this->modelStudent = VSModel::getInstance()->load($this->model, 'Student/');
         $this->modelApplication = VSModel::getInstance()->load($this->modelStudent, 'StudentApplications')->addModel('modelMasterUser', $this->modelMasterUser);
+
+        $this->modelConversations = VSModel::getInstance()->load($this->model, 'Conversations/')
+            ->addModel('modelUser', $this->modelMasterUser);
     }
 
     public function pending()
@@ -94,12 +97,15 @@ class SchoolController extends VSControllerPublic
         $user = $this->modelMasterUser->getItem($student->getUserId());
         $documents = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
         $scholarship = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+        $conversations = $this->modelConversations->where('application_id', $applicant->getId())->getAll();
         $this->view->render('Tiimedu/School/candidate.detail',  [
             'applicant' => $applicant,
             'user' => $user,
             'student' => $student,
             'documents' => $documents,
             'scholarship' => $scholarship,
+            'allowChat'  => true,
+            'conversations' => $conversations
         ]);
     }
 
