@@ -422,9 +422,10 @@ class StudentController extends VSControllerPublic
             $applicant = $this->modelApplication->getItem($applicantId);
             $vars['applicant'] = $applicant;
             $vars['documents'] = $this->modelDocument->where('user_id', $applicant->getUserId())->getAll();
+            $vars['documentTypes'] = $this->modelDocumentType->where('status',1)->getAll();
             if($applicant->getScholarshipId()) 
             {
-                $vars['schoolarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
+                $vars['scholarship'] = $this->modelScholarships->where('id', $applicant->getScholarshipId())->getOne();
             }
             $vars['conversations'] = $this->modelConversations->where('application_id', $applicant->getId())->getAll();
             $vars['allowChat'] = true;
